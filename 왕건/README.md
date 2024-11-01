@@ -7,11 +7,7 @@
 | 출력     | 라즈베리파이                   | 수중 모터                     |
 
 ### 진행 내용
-<div style="display: flex; align-items: center;">
-    <img src="https://static-00.iconduck.com/assets.00/apps-arduino-icon-2048x2048-42m5bo99.png" alt="ino" width="20" height="20" style="margin-right: 10px;">
-    <h4>아두이노 (SoilMoistureAndUltrasonicSensor.ino)</h4>
-</div>
-
+**1. 아두이노 (`SoilMoistureAndUltrasonicSensor.ino`)**
 - 토양 습도 센서의 토양 습도 아날로그 값 측정
 - 초음파 센서의 물탱크 수위 값 측정 및 오차적용
     ```
@@ -26,11 +22,8 @@
     ```
 
 <br>
-<div style="display: flex; align-items: center;">
-    <img src="https://cdn.iconscout.com/icon/free/png-256/free-python-3521655-2945099.png?f=webp" alt="py" width="20" height="20" style="margin-right: 10px;">
-    <h4>라즈베리파이 Python (soil_moisture_water_tank_moniter.py)</h4>
-</div>
 
+**2. 라즈베리파이 Python (`soil_moisture_water_tank_moniter.py`)**
 - 아두이노와 연동하여 Serial 데이터 읽고 파싱
 - 실시간 토양 습도 값과 설정 임계값에 따른 모터 작동
 - InfluxDB에 데이터 저장(토양 습도 값, 물 탱크 수위)
