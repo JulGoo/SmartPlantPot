@@ -2,7 +2,7 @@
 
 
 ```
-  ## Arduino
+  <get_lux_arduino.ino>
   //아날로그 값 읽기
   int sensorValue = analogRead(sensorPin);
   //전압으로 변환
@@ -12,7 +12,7 @@
 ```
 
 ## 테스트 측정
-# 장소
+ 장소
 - 방 전등 켰을 때 : 200~400
 - 손으로 가렸을 시 : 1000~1300
 지속 측정 예정
