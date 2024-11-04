@@ -1,4 +1,31 @@
 ### <일조량 분석 및 식물 생장 LED 자동 제어>
+<br>
+<br>
+
+## 아두이노와 조도센서 핀 연결도
+<table>
+ <tr>
+   <th>센서 핀</th>
+   <th>아두이노 핀</th>
+ </tr>
+ <tr>
+   <td>VCC</td>
+   <td>5V</td>
+ </tr>
+ <tr>
+   <td>GND</td>
+   <td>GND</td>
+ </tr>
+ <tr>
+   <td>D0</td>
+   <td>D2</td>
+ </tr>
+ <tr>
+   <td>A0</td>
+   <td>A0</td>
+ </tr>
+</table>
+
 
 ## 조도센서 아두이노 측정방법 
 ```
