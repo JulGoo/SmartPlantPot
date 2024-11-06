@@ -1,3 +1,11 @@
+#사진 촬영
+$sudo apt install fsweㅠcam  
+$fswebcam [이름].jpg
+
+#사진 및 동영상 촬영
+$sudo apt install guvcview  
+$guvcview
+
 # influxDB 설치
 
 wget -q https://repos.influxdata.com/influxdata-archive_compat.key
@@ -14,7 +22,7 @@ sudo service influxdb status
 # influxDB 데이터베이스 만들기
 
 $ influx
->create database SmartPlantPot
+>create database SmartPlantPot  
 >USE SmartPlantPot
 
 ### 테이블
