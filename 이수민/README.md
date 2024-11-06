@@ -1,8 +1,8 @@
-#사진 촬영
-$sudo apt install fsweㅠcam  
+# 사진 촬영
+$sudo apt install fswebcam  
 $fswebcam [이름].jpg
 
-#사진 및 동영상 촬영
+# 사진 및 동영상 촬영
 $sudo apt install guvcview  
 $guvcview
 
