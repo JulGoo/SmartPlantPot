@@ -1,5 +1,5 @@
 // 토양 습도 센서 핀 설정
-#define soilMoisturePin A0
+#define soilMoisturePin A1
 
 // 초음파 센서 핀 설정
 #define trigPin 9
@@ -38,11 +38,9 @@ void loop() {
   // 실제 초음파 센서 거리 오차 적용(+1cm)
   distance += 1;
 
-  Serial.print("SoilMosture: ");
   Serial.print(soilMostureValue);
-  Serial.print(" Distance: ");
+  Serial.print(",");
   Serial.println(distance);
 
-  // 1초 대기
-  delay(3000);
+  delay(1000);
 }
