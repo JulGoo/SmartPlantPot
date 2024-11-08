@@ -84,11 +84,12 @@
    - `*monitor_and_control_soil_moisture(queue)`: *토양 습도 제어
    - `log_soil_moisture(soil_moisture)`: 토양 습도 값 InfluxDB 기록
    - `activate_water_pump()`: 물 공급
+
 <br>
+
 - InfluxDB
    - measurement: `soil_moisture`
    - fields: `soil_moisture`
-
 
 <br>
 
@@ -97,7 +98,9 @@
    - `*monitor_and_log_water_tank_level(queue)`: *물탱크 수위 확인 및 기록
    - `get_tank_level_percent(distance_to_water)`: 물탱크 수위 퍼센트 변환
    - `log_water_tank_level(level_percent)`: 물탱크 수위 InfluxDB 기록
+
 <br>
+
 - InfluxDB
    - measurement: `water_tank_level`
    - fields: `level_percent`
