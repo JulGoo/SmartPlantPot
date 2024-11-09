@@ -57,7 +57,7 @@ def create_video_from_photos(start_date, end_date, output_filename):
 
 start_date = "2024-11-07"
 end_date = "2024-11-09"
-output_filename = "/home/pi/timelapse/output_video.mp4"
+output_filename = "/home/pi/timelapse/timelapse.mp4"
 
 try:
     create_video_from_photos(start_date, end_date, output_filename)
