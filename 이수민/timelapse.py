@@ -37,7 +37,7 @@ def create_video_from_photos(start_date, end_date, output_filename):
         return
 
     height, width, layers = first_frame.shape
-    video = cv2.VideoWriter(output_filename, cv2.VideoWriter_fourcc(*'XVID'), 5, (width, height))
+    video = cv2.VideoWriter(output_filename, cv2.VideoWriter_fourcc(*'XVID'), 0.5, (width, height))
 
     for photo in sorted(photos):
         print(f"read photo:{photo}")
@@ -49,14 +49,14 @@ def create_video_from_photos(start_date, end_date, output_filename):
         frame_resized = cv2.resize(frame, (width, height))
         print(f"{photo} size : {frame.shape} -> resize : {frame_resized.shape}")
 
-        video.write(frame)
+        video.write(frame_resized)
         print(f"{photo} add.")
 
     video.release()
     print(f"{output_filename} make ok. file size : {os.path.getsize(output_filename)} bytes")
 
 start_date = "2024-11-07"
-end_date = "2024-11-08"
+end_date = "2024-11-09"
 output_filename = "/home/pi/timelapse/output_video.mp4"
 
 try:
