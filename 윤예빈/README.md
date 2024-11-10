@@ -10,6 +10,7 @@ DHT sensor library 설치 (install all)
 ### 아두이노와 온습도센서 핀 연결도
 
 |센서|아두이노|
+|---|---|
 |VCC|5V|
 |D0|D6|
 |GND|GND|
