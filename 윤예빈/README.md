@@ -8,10 +8,10 @@ arduino 스케치 -> 라이브러리 포함하기 -> 라이브러리 관리
 DHT sensor library 설치 (install all)
 
 ### 아두이노와 온습도센서 핀 연결도
-|센서|아두이노|
-|VCC|5V|
-|D0|D6|
-|GND|GND|
+| 센서 | 아두이노 |
+| VCC | 5V |
+| D0 | D6 |
+| GND | GND |
 
 
 
