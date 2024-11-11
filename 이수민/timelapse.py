@@ -6,7 +6,7 @@ from influxdb import InfluxDBClient
 
 def create_video_from_photos(start_date, end_date, output_filename):
 
-    client = InfluxDBClient(host='mojuk.kr', port=8086, username='admin', password='pw.1234', database='spp')
+    client = InfluxDBClient(host='', port=8086, username='', password='', database='')
 
     print("make...")
 
