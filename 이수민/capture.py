@@ -3,7 +3,7 @@ import time
 import os
 from influxdb import InfluxDBClient
 
-client = InfluxDBClient(host='mojuk.kr', port=8086, username='admin', password='pw.1234', database='spp')
+client = InfluxDBClient(host='', port=8086, username='', password='', database='')
 
 cap = cv2.VideoCapture(0)
 
