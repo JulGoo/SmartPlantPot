@@ -1,4 +1,5 @@
 # 텔레그램 봇 인터페이스
+import telegram
 import os
 from dotenv import load_dotenv
 
@@ -12,3 +13,6 @@ def load_token():
     except Exception as e:
         print(e)
         return None
+
+
+
