@@ -1,7 +1,17 @@
 import cv2
 import time
+import os
+from influxdb import InfluxDBClient
+
+client = InfluxDBClient(host='', port=8086, username='', password='', database='')
 
 cap = cv2.VideoCapture(0)
+
+save_directory ="/home/pi/timelapse"
+
+if not os.path.exists(save_directory):
+    os.makedirs(save_directory)
+
 
 if not cap.isOpened():
     print("no webcam")
@@ -14,12 +24,27 @@ try:
 
         ret, frame = cap.read()
         if ret:
-            cv2.imwrite(filename, frame)
+            cv2.imwrite(os.path.join(save_directory, filename), frame)
             print(f"{filename} ok.")
+
+            json_body = [
+                    {
+                        "measurement":"photos",
+                        "tags":{
+                            "source":"webcam"
+                            },
+                        "fields":{
+                            "filename":filename,
+                            "timestamp":timestamp
+                            }
+                        }
+                    ]
+            client.write_points(json_body)
+            print(f"{filename} store ok")
         else:
             print("no capture")
 
-        time.sleep(14400)
+        time.sleep(10)
 
 except KeyboardInterrupt:
     print("stop")

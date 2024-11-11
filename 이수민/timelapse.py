@@ -2,8 +2,12 @@ import cv2
 import os
 import glob
 from datetime import datetime, timedelta
+from influxdb import InfluxDBClient
 
 def create_video_from_photos(start_date, end_date, output_filename):
+
+    client = InfluxDBClient(host='', port=8086, username='', password='', database='')
+
     print("make...")
 
     start_date = datetime.strptime(start_date, "%Y-%m-%d")
@@ -37,7 +41,8 @@ def create_video_from_photos(start_date, end_date, output_filename):
         return
 
     height, width, layers = first_frame.shape
-    video = cv2.VideoWriter(output_filename, cv2.VideoWriter_fourcc(*'XVID'), 0.5, (width, height))
+    video = cv2.VideoWriter(output_filename, cv2.VideoWriter_fourcc(*'mp4v'), 0.5, (width, height))
+
 
     for photo in sorted(photos):
         print(f"read photo:{photo}")
@@ -52,14 +57,32 @@ def create_video_from_photos(start_date, end_date, output_filename):
         video.write(frame_resized)
         print(f"{photo} add.")
 
+        json_body = [
+             {
+                 "measurement":"timelapses",
+                 "tags":{
+                     "start_date": start_date.strftime('%Y-%m-%d'),
+                     "end_date": end_date.strftime('%Y-%m-%d'),
+                     "file_name": output_filename,
+                     },
+                     "fields":{
+                         "created_at":int(datetime.now().timestamp())
+                        }
+                     }
+                ]
+    client.write_points(json_body)
+
     video.release()
     print(f"{output_filename} make ok. file size : {os.path.getsize(output_filename)} bytes")
 
-start_date = "2024-11-07"
-end_date = "2024-11-09"
-output_filename = "/home/pi/timelapse/timelapse.mp4"
+
+start_date = input("start(YYYY-MM-DD): ")
+end_date = input("end(YYYY-MM-DD): ")
+output_filename = input("filename ex)timelapse.mp4): ")
+
+output_filepath = os.path.join('/home/pi/timelapse', output_filename)
 
 try:
-    create_video_from_photos(start_date, end_date, output_filename)
+    create_video_from_photos(start_date, end_date, output_filepath)
 except Exception as e:
     print(f"error:{e}")
