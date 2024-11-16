@@ -1,56 +1,42 @@
-import serial
 import time
 from datetime import datetime
 from influxdb import InfluxDBClient
 
-# InfluxDB 연결
-client = InfluxDBClient(host='', username='', password='', database='')
 
-ser = serial.Serial('/dev/ttyACM0', 9600) # 시리얼 포트 설정
-
-def collect_data():
-    if ser.in_waiting > 0:
-        data = ser.readline().decode('utf-8').strip()
-        
-        try:
-            # 데이터를 쉼표로 분리하여 습도와 온도를 각각 가져오기
-            humidity, temperature = map(float, data.split(","))
-            current_time = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
-            
-            # 습도 데이터 저장
-            humidity_json = [{
-                "measurement": "Humidity",
-                "time": current_time,
-                "fields": {
-                    "humidity": humidity
-                }
-            }]
-            client.write_points(humidity_json)
-            print(f"Saved humidity: {humidity} at {current_time}")
-
-            # 온도 데이터 저장
-            temperature_json = [{
-                "measurement": "Temperature",
-                "time": current_time,
-                "fields": {
-                    "temperature": temperature
-                }
-            }]
-            client.write_points(temperature_json)
-            print(f"Saved temperature: {temperature} at {current_time}")
-
-        except ValueError as e:
-            print("Error writing Humidity, Temperature to InfluxDB:", e)
-
-def main():
-    print("Collecting humidity and temperature data...")
+def log_data_to_influxdb(measurement, value):
+    """온습도 데이터를 InfluxDB에 기록"""
+    data = [
+        {
+            "measurement": measurement,
+            "time": datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'),
+            "fields": {
+                "value": value
+            }
+        }
+    ]
+    client = None
     try:
-        while True:
-            collect_data()
-    except KeyboardInterrupt:
-        print("\nProgram terminated by user")
+        client = InfluxDBClient(host='', username='', password='', database='')
+        client.write_points(data)
+    except Exception as e:
+        print(f"Error writing {measurement} to InfluxDB:", e)
     finally:
-        ser.close()
+        if client:
+            client.close()
 
-if __name__ == "__main__":
-    main()
+def monitor_and_log_temperature_humidity(queue):
+    """큐에서 온도 및 습도 데이터를 읽고 InfluxDB에 기록"""
+    while True:
+        if not queue.empty():
+            # 큐에서 데이터 읽기
+            data_type, value = queue.get()
+
+            if data_type == 'humidity_value':
+                print(f"습도 데이터 수신: {value}%")
+                log_data_to_influxdb("Humidity", value)
+
+            elif data_type == 'temperature_value':
+                print(f"온도 데이터 수신: {value}°C")
+                log_data_to_influxdb("Temperature", value)
+
+        time.sleep(1)  # 대기 
