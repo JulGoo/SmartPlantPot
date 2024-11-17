@@ -1,5 +1,5 @@
 # 사용자 명령어 인터페이스
-from telegram import Update
+from telegram import Update, ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, MessageHandler, CommandHandler, filters, ContextTypes
 import status_report as sr
 import telegram_bot as tb
@@ -12,13 +12,26 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
            "똑똑한 식물 관리 플랫폼\n"
            "\"Smart Plant Pot\" 입니다!\n"
            "\n"
-           "다음 명령어 혹은 번호를 입력해주세요.\n"
-           "=============\n"
-           "1. 도움말\n"
-           "2. 식물설정\n"
-           "3. 식물상태분석\n"
-           "4. 타임랩스받기")
-    await update.message.reply_text(msg)
+           "다음 번호를 선택해주세요.")
+
+    # GUI 버튼으로 선택지 구성
+    keyboard = [
+        [
+            InlineKeyboardButton("1. 도움말", callback_data="help"),
+            InlineKeyboardButton("2. 식물설정", callback_data="plant_setting"),
+        ],
+        [
+            InlineKeyboardButton("3. 식물상태분석", callback_data="plant_analysis"),
+            InlineKeyboardButton("4. 타임랩스받기", callback_data="get_timelapse"),
+        ],
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    # 메세지 전송
+    await update.message.reply_text(
+        msg,
+        reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+    )
 
 
 # 메시지 수신 핸들러
