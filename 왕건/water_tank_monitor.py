@@ -4,6 +4,12 @@ from influxdb import InfluxDBClient as influxdb
 # 물탱크 높이 설정
 TANK_HEIGHT_CM = 20  # 물탱크 높이 (cm)
 
+# InfluxDB 연결 설정
+client = influxdb(host='',
+                username='', 
+                password='', 
+                database='')
+
 # 물탱크 수위 퍼센트 변환 함수
 def get_tank_level_percent(distance_to_water):
     water_height = TANK_HEIGHT_CM - distance_to_water
@@ -20,9 +26,7 @@ def log_water_tank_level(level_percent):
             }
         }
     ]
-    client = None
     try:
-        client = influxdb()
         client.write_points(data)
     except Exception as e:
         print("Error writing water tank level to InfluxDB:", e)
@@ -37,13 +41,15 @@ def monitor_and_log_water_tank_level(queue):
             data_type, value = queue.get()
             if data_type == 'water_tank_value':
                 distance_to_water = value
-            print(distance_to_water)
+                print('초음파센서 값: ', distance_to_water)
 
-            # 물탱크 수위 계산
-            level_percent = get_tank_level_percent(distance_to_water)
+                # 물탱크 수위 계산
+                level_percent = get_tank_level_percent(distance_to_water)
 
-            # 물탱크 수위 기록
-            log_water_tank_level(level_percent)
+                print('초음파센서 퍼센트: ', distance_to_water, '%')
+
+                # 물탱크 수위 기록
+                log_water_tank_level(level_percent)
 
         time.sleep(1)  # 대기(테스트)
         #time.sleep(3600)  # 대기(1시간)
