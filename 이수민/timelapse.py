@@ -4,7 +4,12 @@ import glob
 from datetime import datetime, timedelta
 from influxdb import InfluxDBClient
 
-def create_video_from_photos(start_date, end_date, output_filename):
+def create_video_from_photos():
+
+    start_date = input("start(YYYY-MM-DD): ")
+    end_date = input("end(YYYY-MM-DD): ")
+    output_filename = input("filename ex)timelapse.mp4): ")
+    output_filepath = os.path.join('/home/pi/timelapse', output_filename)
 
     client = InfluxDBClient(host='', port=8086, username='', password='', database='')
 
@@ -41,7 +46,7 @@ def create_video_from_photos(start_date, end_date, output_filename):
         return
 
     height, width, layers = first_frame.shape
-    video = cv2.VideoWriter(output_filename, cv2.VideoWriter_fourcc(*'mp4v'), 0.5, (width, height))
+    video = cv2.VideoWriter(output_filepath, cv2.VideoWriter_fourcc(*'mp4v'), 0.5, (width, height))
 
 
     for photo in sorted(photos):
@@ -73,16 +78,11 @@ def create_video_from_photos(start_date, end_date, output_filename):
     client.write_points(json_body)
 
     video.release()
-    print(f"{output_filename} make ok. file size : {os.path.getsize(output_filename)} bytes")
+    print(f"{output_filename} make ok. file size : {os.path.getsize(output_filepath)} bytes")
 
 
-start_date = input("start(YYYY-MM-DD): ")
-end_date = input("end(YYYY-MM-DD): ")
-output_filename = input("filename ex)timelapse.mp4): ")
-
-output_filepath = os.path.join('/home/pi/timelapse', output_filename)
-
-try:
-    create_video_from_photos(start_date, end_date, output_filepath)
-except Exception as e:
-    print(f"error:{e}")
+if __name__ == "__main__":
+    try:
+        create_video_from_photos()
+    except Exception as e:
+        print(f"error: {e}")
