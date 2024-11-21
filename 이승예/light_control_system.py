@@ -14,11 +14,20 @@ LED_INVERT = False
 LED_CHANNEL = 0
 
 # 조도 설정
-TARGET_LUX = 10000    # 목표 조도값 
 DAYTIME_START = 6   # 오전 6시
 DAYTIME_END = 18    # 오후 6시
 
-
+# 조도 임계값 설정 함수
+def get_light_threshold():
+    light_threshold = 20000    # 기본값
+    try:
+        with open("threshold.txt", "r") as file:
+            lines = file.readlines()
+            threshold = lines[1].strip()    # 두번째 줄만 읽기
+            light_threshold = int(threshold)
+    except FileNotFoundError:
+        print("조도 임계값 파일을 찾을 수 없습니다. 기본 임계값을 사용합니다.")
+    return light_threshold
 
 # InfluxDB 연결 설정
 client = InfluxDBClient(host='', 
@@ -48,13 +57,15 @@ def get_hourly_average():
 
 def calculate_led_brightness(current_lux):
     """부족한 조도에 따른 LED 밝기 계산"""
-    if current_lux >= TARGET_LUX:
+    light_threshold = get_light_threshold()  # 임계값 읽기
+   
+    if current_lux >= light_threshold:
         return 0
 
     # 부족한 조도량에 비례하여 LED 밝기 설정
-    lux_deficit = TARGET_LUX - current_lux
+    lux_deficit = light_threshold - current_lux
     # LED 밝기를 0-255 범위로 매핑
-    brightness = int((lux_deficit / TARGET_LUX) * 255)
+    brightness = int((lux_deficit / light_threshold) * 255)
     return min(brightness, 255) # 최대 255로 제한
 
 def control_leds(strip, brightness):
