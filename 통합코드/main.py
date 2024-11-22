@@ -6,6 +6,9 @@ from soil_moisture_control import monitor_and_control_soil_moisture
 from water_tank_monitor import monitor_and_log_water_tank_level
 from light_control_system import monitor_and_control_light
 from get_humidity_temp import monitor_and_log_temperature_humidity
+from capture import capture_photos_from_webcam
+from telegram_bot import load_telegram
+from user_interface import main
 
 # 시리얼 포트 설정
 serial_port = '/dev/ttyACM0'  # 아두이노 시리얼 포트
@@ -50,9 +53,13 @@ def start_threads():
     temperature_humidity_thread = threading.Thread(target=monitor_and_log_temperature_humidity, args=(queue,), daemon=True)
 	
 	# 카메라 촬영 스레드
+    capture_photos_thred = threading.Thread(tartget=capture_photos_from_webcam, daemon=True)
 
-	
-	# ...
+	# 텔레그램 봇 인터페이스 스레드
+    load_telegram_thred = threading.Thread(tartget=load_telegram, daemon=True)
+
+	# 사용자 인터페이스 스레드
+    telegram_userinterface = threading.Thread(tartget=main, daemon=True)
 
     # 스레드 시작
     serial_thread.start()
@@ -60,6 +67,9 @@ def start_threads():
     water_tank_thread.start()
     light_thread.start()
     temperature_humidity_thread.start()
+    capture_photos_thred.start()
+    load_telegram_thred.start()
+    telegram_userinterface.start()
 
     # 메인 스레드는 계속 실행되어야 함
     serial_thread.join()
@@ -67,6 +77,9 @@ def start_threads():
     water_tank_thread.join()
     light_thread.join()
     temperature_humidity_thread.join()
+    capture_photos_thred.join()
+    load_telegram_thred.join()
+    telegram_userinterface.join()
 
 if __name__ == "__main__":
     try:
