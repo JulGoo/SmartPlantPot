@@ -4,11 +4,8 @@ import glob
 from datetime import datetime, timedelta
 from influxdb import InfluxDBClient
 
-def create_video_from_photos():
-
-    start_date = input("start(YYYY-MM-DD): ")
-    end_date = input("end(YYYY-MM-DD): ")
-    output_filename = input("filename ex)timelapse.mp4): ")
+def create_video_from_photos(start_date_str, end_date_str, output_filename):
+    
     output_filepath = os.path.join('/home/pi/timelapse', output_filename)
 
     client = InfluxDBClient(host='', port=8086, username='', password='', database='')
@@ -83,6 +80,11 @@ def create_video_from_photos():
 
 if __name__ == "__main__":
     try:
-        create_video_from_photos()
+        # 사용자로부터 입력 받기
+        start_date = input("시작일(YYYY-MM-DD): ")
+        end_date = input("종료일(YYYY-MM-DD): ")
+        output_filename = input("파일 이름 (예: timelapse.mp4): ")
+        
+        create_video_from_photos(start_date, end_date, output_filename)
     except Exception as e:
         print(f"error: {e}")
