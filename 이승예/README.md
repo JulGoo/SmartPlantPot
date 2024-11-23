@@ -15,10 +15,6 @@
    <td>GND</td>
  </tr>
  <tr>
-   <td>D0</td>
-   <td>D2</td>
- </tr>
- <tr>
    <td>A0</td>
    <td>A0</td>
  </tr>
@@ -41,36 +37,33 @@
  </tr>
  <tr>
    <td>D0</td>
-   <td>GPIO18</td>
+   <td>GPIO10</td>
  </tr>
 </table>
 
-# 네오픽셀 LED 설치
+# Pi5 Neo (네오픽셀 라이브러리)
 ```
-$ sudo apt-get update
-$ sudo apt-get install gcc make build-essential python3-dev git scons swig
+$sudo raspi-config
+   Interface Options 선택
+   SPI 선택
+   Yes 선택하여 활성화
+   Finish 선택
 
-# 사운드 모듈이 비활성화(네오픽셀 충돌 방지)
-$ sudo nano /etc/modprobe.d/snd-blacklist.conf
-	# 입력 : blacklist snd_bcm2835
-	# 저장 : Ctrl+x
+$sudo pip3 install pi5neo 
+   오류(error : externally-managed-environment ==> sudo pip3 install pi5neo --break-system-packages)
 
+$sudo reboot
 
-# 설정 파일 수정
-$ sudo vim /boot/config.txt
-	# 맨 아래에 추가:
-	   hdmi_force_hotplug=1
-	   hdmi_force_edid_audio=1
-           dtparam=spi=on
-           dtparam=audio=off
+(파일 실행 후 권한 에러 뜨면)
+# 사용자를 spi 그룹에 추가
+sudo usermod -a -G spi,gpio pi
 
-#라이브러리 설치
-$ git clone https://github.com/jgarff/rpi_ws281x
-$ cd rpi_ws281x
-$ sudo scons
+# SPI 장치 권한 설정
+sudo chown root:spi /dev/spidev0.0
+sudo chmod 660 /dev/spidev0.0
 
-$ git clone https://github.com/rpi-ws281x/rpi-ws281x-python
-$ cd rpi-ws281x-python
+# 변경사항 적용을 위한 재부팅
+sudo reboot
 ```
 
 ## 조도센서 아두이노 측정방법 
