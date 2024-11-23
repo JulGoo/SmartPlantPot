@@ -1,17 +1,11 @@
 from datetime import datetime, timedelta
 from influxdb import InfluxDBClient
-from rpi_ws281x import PixelStrip, Color
 import time
 from queue import Queue
+from pi5neo import Pi5Neo
 
 # LED 설정
-LED_COUNT = 10
-LED_PIN = 18
-LED_FREQ_HZ = 800000
-LED_DMA = 10
-LED_BRIGHTNESS = 255
-LED_INVERT = False
-LED_CHANNEL = 0
+neo = Pi5Neo('/dev/spidev0.0', 10, 800)
 
 # 조도 설정
 DAYTIME_START = 6   # 오전 6시
@@ -68,23 +62,17 @@ def calculate_led_brightness(current_lux):
     brightness = int((lux_deficit / light_threshold) * 255)
     return min(brightness, 255) # 최대 255로 제한
 
-def control_leds(strip, brightness):
+def control_leds(brightness):
     """LED 밝기 제어"""
-    color = Color(brightness, brightness, brightness)
-    for i in range(strip.numPixels()):
-        strip.setPixelColor(i, color)
-    strip.show()
+    neo.clear_strip()
+    neo.fill_strip(brightness, brightness, brightness)
+    neo.update_strip()
 
 
 
 def monitor_and_control_light(queue):
     """메인 모니터링 및 제어 함수"""
-    print("Starting light sensor data collection...")
-
-    # LED 스트립 초기화
-    strip = PixelStrip(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
-    strip.begin()
-
+    # print("Starting light sensor data collection...")
     
     last_average_check = datetime.now()  # 마지막 평균 체크 시간 초기화
     led_control_end_time = None # LED 제어 종료 시간
@@ -125,21 +113,21 @@ def monitor_and_control_light(queue):
                                 brightness = calculate_led_brightness(avg_light)
                                 if brightness > 0:
                                     print(f"조도 부족 감지 - LED 밝기 설정: {brightness}")
-                                    control_leds(strip, brightness)
+                                    control_leds(brightness)
                                     led_control_end_time = current_time + timedelta(hours=1)
                                 else:
                                     print("충분한 조도 - LED 꺼짐")
-                                    control_leds(strip, 0)
+                                    control_leds(0)
                             else:
                                 print("야간 시간대 - LED 작동 제한")
-                                control_leds(strip, 0)
+                                control_leds(0)
 
                         last_average_check = current_time
 
                     # LED 작동 시간 체크
                     if led_control_end_time and current_time >= led_control_end_time:
                         print("LED 작동 시간 종료")
-                        control_leds(strip, 0)
+                        control_leds(0)
                         led_control_end_time = None
 
             time.sleep(0.1)
@@ -147,7 +135,7 @@ def monitor_and_control_light(queue):
     except Exception as e:
         print(f"Unexpected error in light monitoring: {e}")
     finally:
-        control_leds(strip, 0) #LED 끄기
+        control_leds(0) #LED 끄기
         client.close()
 
 if __name__ == "__main__":
