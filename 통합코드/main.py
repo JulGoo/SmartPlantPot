@@ -2,13 +2,7 @@ import threading
 import time
 import serial
 from queue import Queue
-from soil_moisture_control import monitor_and_control_soil_moisture
-from water_tank_monitor import monitor_and_log_water_tank_level
-from light_control_system import monitor_and_control_light
-from get_humidity_temp import monitor_and_log_temperature_humidity
-from capture import capture_photos_from_webcam
-from telegram_bot import load_telegram
-from user_interface import main
+import modules
 
 # 시리얼 포트 설정
 serial_port = '/dev/ttyACM0'  # 아두이노 시리얼 포트
@@ -23,8 +17,14 @@ def serial_reader():
     while True:
         if ser.in_waiting > 0:
             line = ser.readline().decode('utf-8').rstrip()
-            print('시리얼 데이터: ', line)
-            parts = line.split(',')       
+            parts = line.split(',')
+
+            # 시리얼 데이터 출력
+            print('Serial_토양습도: ', int(parts[0]))
+            print('Serial_물탱크수위: ', int(parts[0]))
+            print('Serial_조도: ', int(parts[0]))
+            print('Serial_온도: ', int(parts[0]))
+            print('Serial_습도: ', int(parts[0]))
 
             # 큐에 데이터 넣기
             queue.put(('soil_moisture_value', int(parts[0])))	# 첫 번째 값: 토양 습도
@@ -33,7 +33,7 @@ def serial_reader():
             queue.put(('temp_value', int(parts[3])))	# 네 번째 값: 온도
             queue.put(('humidity_value', int(parts[4])))	# 다섯 번째 값: 습도
 
-        time.sleep(0.1)  # 시리얼 데이터를 읽는 주기
+        time.sleep(1)  # 시리얼 데이터를 읽는 주기 (1초)
 
 def start_threads():
     """멀티스레드 실행"""
@@ -41,25 +41,25 @@ def start_threads():
     serial_thread = threading.Thread(target=serial_reader, daemon=True)
 
     # 토양 습도 제어 스레드
-    soil_moisture_thread = threading.Thread(target=monitor_and_control_soil_moisture, args=(queue,), daemon=True)
+    soil_moisture_thread = threading.Thread(target=modules.monitor_and_control_soil_moisture, args=(queue,), daemon=True)
 
     # 물탱크 수위 기록 스레드
-    water_tank_thread = threading.Thread(target=monitor_and_log_water_tank_level, args=(queue,), daemon=True)
+    water_tank_thread = threading.Thread(target=modules.monitor_and_log_water_tank_level, args=(queue,), daemon=True)
 
 	# 일조량 제어 스레드
-    light_thread = threading.Thread(target=monitor_and_control_light, args=(queue,), daemon=True)
+    light_thread = threading.Thread(target=modules.monitor_and_control_light, args=(queue,), daemon=True)
 	
 	# 온습도 기록 스레드
-    temperature_humidity_thread = threading.Thread(target=monitor_and_log_temperature_humidity, args=(queue,), daemon=True)
+    temperature_humidity_thread = threading.Thread(target=modules.monitor_and_log_temperature_humidity, args=(queue,), daemon=True)
 	
 	# 카메라 촬영 스레드
-    capture_photos_thred = threading.Thread(tartget=capture_photos_from_webcam, daemon=True)
+    capture_photos_thred = threading.Thread(tartget=modules.capture_photos_from_webcam, daemon=True)
 
 	# 텔레그램 봇 인터페이스 스레드
-    load_telegram_thred = threading.Thread(tartget=load_telegram, daemon=True)
+    load_telegram_thred = threading.Thread(tartget=modules.load_telegram, daemon=True)
 
 	# 사용자 인터페이스 스레드
-    telegram_userinterface = threading.Thread(tartget=main, daemon=True)
+    telegram_userinterface = threading.Thread(tartget=modules.main, daemon=True)
 
     # 스레드 시작
     serial_thread.start()
@@ -83,6 +83,7 @@ def start_threads():
 
 if __name__ == "__main__":
     try:
+        print("**Smart Plant Pot Program Start**")
         start_threads()
     except KeyboardInterrupt:
-        print("Program interrupted.")
+        print("main.py: Program interrupted.")
