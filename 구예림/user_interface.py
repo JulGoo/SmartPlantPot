@@ -105,11 +105,26 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     elif query.data == "get_analysis":
         chat_id = query.message.chat_id
+
+        # 분석 결과 메시지 먼저 전송
+        await query.message.reply_text("식물 상태 분석 결과입니다.")
+
+        # 식물 상태 분석 이미지 전송
         result = await sr.send_image(chat_id)
+
+        # 이미지를 성공적으로 보냈는지 확인
         if result is None:
-            response_msg = "사진 파일이 없습니다."
+            # 분석 결과가 없을 경우 알림 메시지 추가 전송
+            await query.message.reply_text(
+                "분석 결과 이미지를 찾을 수 없습니다.\n"
+                "\n"
+                "메뉴로 돌아가시려면 \"/start\"를 입력해주세요."
+            )
         else:
-            response_msg = "식물 상태 분석 결과입니다."
+            ####################### model_predict(img_path) 결과에 따라 if else ##########################################
+            await query.message.reply_text("현재 식물 상태는 양호합니다.\n\n메뉴로 돌아가시려면 \"/start\"를 입력해주세요.")
+            #await query.message.reply_text("현재 식물 상태는 불량합니다.\n\n메뉴로 돌아가시려면 \"/start\"를 입력해주세요.")
+
 
     elif query.data == "get_timelapse":
         chat_id = query.message.chat_id
@@ -140,10 +155,10 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 "수동 물주기가 작동합니다.\n\n"
                 "메뉴로 돌아가시려면 \"/start\"를 입력해주세요."
                             )
-            ######################### 물 공급 함수 ############################################################################
+            ######################### 물 공급 함수 #######################################################################
 
         elif query.data == "water_tank":  # 물탱크 잔여량 확인
-            ################# 물탱크 수위 퍼센트 변환 함수###################################################################
+            ############################ 물탱크 수위 퍼센트 변환 함수########################################################
             # 통합하고 지우기
             response_msg = "현재 물탱크 잔여량입니다."
             #response_msg = (
