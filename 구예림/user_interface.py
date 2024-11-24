@@ -55,6 +55,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "5. 물주기 설정: 수동 물주기 및 물탱크 잔여량 확인\n"
             "6. 조명 설정: 조명 ON/OFF 제어"
         )
+
     elif query.data == "plant_setting":
         # 식물 선택 버튼 생성
         keyboard = [
@@ -109,6 +110,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             response_msg = "사진 파일이 없습니다."
         else:
             response_msg = "식물 상태 분석 결과입니다."
+
     elif query.data == "get_timelapse":
         chat_id = query.message.chat_id
         result = await sr.send_video(chat_id)
@@ -116,6 +118,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             response_msg = "타임랩스 영상이 없습니다."
         else:
             response_msg = "현재까지 촬영된 타임랩스 영상입니다."
+
     elif query.data == "water_setting":
         # 물주기 버튼 생성
         keyboard = [
@@ -137,33 +140,77 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 "수동 물주기가 작동합니다.\n\n"
                 "메뉴로 돌아가시려면 \"/start\"를 입력해주세요."
                             )
-            ######################### 물주기 ############################################################################
+            ######################### 물 공급 함수 ############################################################################
 
         elif query.data == "water_tank":  # 물탱크 잔여량 확인
             ################# 물탱크 수위 퍼센트 변환 함수###################################################################
             # 통합하고 지우기
             response_msg = "현재 물탱크 잔여량입니다."
-            #response_msg = f"현재 물탱크 잔여량은 {}입니다."
+            #response_msg = (
+            #    f"현재 물탱크 잔여량은 {}입니다.\n\n"
+            #    "메뉴로 돌아가시려면 \"/start\"를 입력해주세요."
+            #    )
 
-        # 버튼을 제거하여 빈 키보드로 업데이트
-        reply_markup = InlineKeyboardMarkup([])
+        keyboard = [
+            [
+                InlineKeyboardButton("1. 수동 물주기", callback_data="water_pour"),
+            ],
+            [
+                InlineKeyboardButton("2. 물탱크 잔여량 확인", callback_data="water_tank"),
+            ],
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
 
     elif query.data == "light_setting":
-        response_msg = (
-            "조명 설정:\n"
-            "1. 조명 켜기\n"
-            "2. 조명 끄기"
-        )
+        # 조명 관리 버튼 생성
+        keyboard = [
+            [
+                InlineKeyboardButton("1. 조명 켜기", callback_data="light_on"),
+            ],
+            [
+                InlineKeyboardButton("2. 조명 끄기", callback_data="light_off"),
+            ],
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+
+        response_msg = "버튼을 선택해주세요."
+
+    elif query.data.startswith("light_"):
+        # 물주기 버튼 옵션
+        if query.data == "light_on":  # 조명 켜기
+            response_msg = (
+                "조명을 켭니다.\n\n"
+                "메뉴로 돌아가시려면 \"/start\"를 입력해주세요."
+                            )
+            ############################################## 조명 켜기  ####################################################
+
+        elif query.data == "light_off":  # 조명 끄기
+            ###################################### 조명 끄기  ############################################################
+
+            response_msg = (
+                "조명을 끕니다.\n\n"
+                "메뉴로 돌아가시려면 \"/start\"를 입력해주세요."
+            )
+
+        keyboard = [
+            [
+                InlineKeyboardButton("1. 조명 켜기", callback_data="light_on"),
+            ],
+            [
+                InlineKeyboardButton("2. 조명 끄기", callback_data="light_off"),
+            ],
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
 
     # 클릭한 버튼에 대한 응답 메시지 전송
     if response_msg:
         # "식물 설정" 메뉴를 클릭했을 때만 식물 선택 버튼을 전송
-        if query.data.startswith("plant_") or query.data.startswith("water_"):
+        if query.data == "help":
+            # 기존 버튼을 유지하도록 설정
+            await query.edit_message_text(response_msg, reply_markup=query.message.reply_markup)
+        else:
             # 메시지와 함께 식물 선택 버튼을 갱신
             await query.edit_message_text(response_msg, reply_markup=reply_markup)
-        else:
-            # 그 외에는 기존 버튼을 유지하도록 설정
-            await query.edit_message_text(response_msg, reply_markup=query.message.reply_markup)
 
 
 # 사용자 메시지 처리 핸들러 (임의의 메시지에 응답)
@@ -174,7 +221,7 @@ async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # 알 수 없는 명령어 처리 핸들러
 async def unknown_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("잘못된 명령어입니다. 다시 입력해주세요.")
+    await update.message.reply_text("잘못된 명령어입니다.\n시작을 위해 \"/start\"를 입력해주세요.")
 
 
 # 메인 함수
