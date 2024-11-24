@@ -1,5 +1,29 @@
 # 통합코드
 
+### 파일구조
+```
+/home/pi/SmartPlantPot/
+│
+├──arduino/
+│  └──main.ino (아두이노 실행 파일)
+│
+├──modules/
+│  ├──각 모듈 .py파일
+│  └──...
+│
+├──plant_images/
+│  ├──식물 이미지.jpg
+│  └──...
+│
+├──timelapse/
+│  └──타임랩스 영상.mp4
+│
+├──threshold/
+│  └──threshold.txt (임계값 정의 텍스트 파일)
+│
+└──main.py
+```
+
 ### `Main.py`
 - 각 기능을 하는 py파일들을 MultiThread로 병령 실행
 - 아두이노 Serial 포트를 여러 파일에서 사용하면 오류가 발생

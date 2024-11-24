@@ -14,7 +14,7 @@ DAYTIME_END = 18    # 오후 6시
 def get_light_threshold():
     light_threshold = 20000    # 기본값
     try:
-        with open("threshold.txt", "r") as file:
+        with open("../threshold/threshold.txt", "r") as file:
             lines = file.readlines()
             threshold = lines[1].strip()    # 두번째 줄만 읽기
             light_threshold = int(threshold)

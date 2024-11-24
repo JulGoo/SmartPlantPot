@@ -1,88 +1,54 @@
 import cv2
 import os
 import glob
-from datetime import datetime, timedelta
-from influxdb import InfluxDBClient
 
-def create_video_from_photos():
+# video_lenth 동영상 길이(초)
+def create_video_from_photos(video_lenth:int = 10):
+    photo_directory = './plant_images'
 
-    start_date = input("start(YYYY-MM-DD): ")
-    end_date = input("end(YYYY-MM-DD): ")
-    output_filename = input("filename ex)timelapse.mp4): ")
-    output_filepath = os.path.join('/home/pi/timelapse', output_filename)
-
-    client = InfluxDBClient(host='localhost', port=8086, username='root', password='root', database='spp')
-
-    print("make...")
-
-    start_date = datetime.strptime(start_date, "%Y-%m-%d")
-    end_date = datetime.strptime(end_date, "%Y-%m-%d")
-    
-    photo_directory = '/home/pi/timelapse'
-    photos = []
-
-    current_date = start_date
-    while current_date <= end_date:
-        date_str = current_date.strftime('%Y%m%d')
-        filename_pattern = f"photo_{date_str}_*.jpg"
-        matching_files = glob.glob(os.path.join(photo_directory, filename_pattern))
-        photos.extend(matching_files)
-        print(f"{current_date.strftime('&Y-%m-%d')} search : {matching_files}")
-        current_date += timedelta(days=1)
+    # 이미지 파일 가져오기
+    photos = glob.glob(os.path.join(photo_directory, '*.jpg'))
+    photos.sort()
 
     if not photos:
-        print("timelapse.py: no photo")
-        return
+        print("timelapse.py: 이미지가 존재하지 않습니다.")
+        return None
 
-    print(f"timelapse.py: fine photo : {photos}")
-    
-    if not photos:
-        print("timelapse.py: use photo no")
-        return
-
+    # 첫 번째 이미지 읽기(프레임 생성)
     first_frame = cv2.imread(photos[0])
     if first_frame is None:
-        print("timelapse.py: first photo read no")
-        return
+        print("timelapse.py: 이미지를 읽을 수 없습니다.")
+        return None
 
     height, width, layers = first_frame.shape
-    video = cv2.VideoWriter(output_filepath, cv2.VideoWriter_fourcc(*'mp4v'), 0.5, (width, height))
 
+    # 비디오 파일 저장 경로 지정
+    video_path = './timelapse/timelapse.mp4'
 
-    for photo in sorted(photos):
-        print(f"timelapse.py: read photo:{photo}")
+    # 기존 파일이 존재하면 삭제
+    if os.path.exists(video_path):
+        os.remove(video_path)
+
+    # FPS 계산(이미지 수 / 비디오 길이)
+    fps = photos.__len__() / video_lenth
+
+    # 비디오 객체 생성
+    video_writer = cv2.VideoWriter(
+        video_path,
+        cv2.VideoWriter_fourcc(*'mp4v'),
+        fps,
+        (width, height)
+    )
+
+    # 이미지 전체를 비디오 객체에 추가
+    for photo in photos:
         frame = cv2.imread(photo)
         if frame is None:
-            print(f"timelapse.py: no frame : {photo}")
             continue
- 
+
         frame_resized = cv2.resize(frame, (width, height))
-        print(f"timelapse.py: {photo} size : {frame.shape} -> resize : {frame_resized.shape}")
+        video_writer.write(frame_resized)
 
-        video.write(frame_resized)
-        print(f"timelapse.py: {photo} add.")
-
-        json_body = [
-             {
-                 "measurement":"timelapses",
-                 "tags":{
-                     "start_date": start_date.strftime('%Y-%m-%d'),
-                     "end_date": end_date.strftime('%Y-%m-%d'),
-                     "file_name": output_filename,
-                     },
-                     "fields":{
-                         "created_at":int(datetime.now().timestamp())
-                        }
-                     }
-                ]
-    client.write_points(json_body)
-
-    video.release()
-    print(f"timelapse.py: {output_filename} make ok. file size : {os.path.getsize(output_filepath)} bytes")
-
-
-if __name__ == "__main__":
-    try:
-        create_video_from_photos()
-    except Exception as e:
-        print(f"timelapse.py: error: {e}")
+    video_writer.release()
+    print(f"timelapse.py: 비디오 생성 완료. 파일 경로: {video_path}")
+    return video_path  # 비디오 파일 경로 반환
