@@ -7,9 +7,61 @@ from pi5neo import Pi5Neo
 # LED 설정
 neo = Pi5Neo('/dev/spidev0.0', 10, 800)
 
+# 수동 제어 변수
+manual_control = False
+
 # 조도 설정
 DAYTIME_START = 6   # 오전 6시
 DAYTIME_END = 18    # 오후 6시
+
+# 밝기 프리셋 정의 (0-255 범위로 변환)
+BRIGHTNESS_PRESETS = {
+    25: 64,    # 25% = 64 (255 * 0.25)
+    50: 128,   # 50% = 128 (255 * 0.50)
+    75: 191,   # 75% = 191 (255 * 0.75)
+    100: 255   # 100% = 255 (255 * 1.00)
+}
+
+# 수동 조명 제어 (LED를 지정된 밝기 퍼센트로 켜기)
+def turn_on_led_with_brightness(brightness_percent):  
+    global manual_control
+    try:
+        if brightness_percent not in BRIGHTNESS_PRESETS:
+            print(f"잘못된 밝기 값입니다. 25, 50, 75, 100 중 선택하세요.")
+            return False
+            
+        manual_control = True
+        brightness = BRIGHTNESS_PRESETS[brightness_percent]
+        neo.clear_strip()
+        neo.fill_strip(brightness, brightness, brightness)
+        neo.update_strip()
+        print(f"LED 밝기가 {brightness_percent}%로 설정되었습니다.")
+        return True
+    except Exception as e:
+        print(f"LED 켜기 실패")
+        return False
+
+# 수동 조명 제어(LED OFF)
+def turn_off_led():
+    try:
+        neo.clear_strip()
+        neo.fill_strip(0, 0, 0)  # LED 끄기
+        neo.update_strip()
+        return True
+    except Exception as e:
+        print(f"LED 끄기 실패")
+        return False
+
+# 자동 모드 전환 함수
+def switch_to_auto_mode():
+    global manual_control
+    try:
+        manual_control = False
+        print("자동 모드로 전환되었습니다.")
+        return True
+    except Exception as e:
+        print(f"모드 전환 실패")
+        return False
 
 # 조도 임계값 설정 함수
 def get_light_threshold():
@@ -79,7 +131,7 @@ def monitor_and_control_light(queue):
     
     try:
         while True:
-            if not queue.empty():
+            if not queue.empty(): 
                 # 큐에서 조도 데이터 받기
                 data_type, value = queue.get()
                 
@@ -100,42 +152,46 @@ def monitor_and_control_light(queue):
                     client.write_points(json_body)
                     print(f"Saved lux value: {value}")
                     
-                    # 1시간마다 평균 조도 확인 및 LED 제어
-                    if current_time >= last_average_check + timedelta(hours=1):
-                        avg_light = get_hourly_average()
-                        if avg_light is not None:
-                            print(f"\n=== 최근 1시간 평균 조도 ===")
-                            print(f"시간: {current_time.strftime('%Y-%m-%d %H:%M:%S')}")
-                            print(f"평균 조도: {avg_light:.2f} lux")
+		    
+                    # 수동 모드가 아닐 때만 자동 제어 실행
+                    if not manual_control:
+                        # 1시간마다 평균 조도 확인 및 LED 제어
+                        if current_time >= last_average_check + timedelta(hours=1):
+                            avg_light = get_hourly_average()
+                            if avg_light is not None:
+                                print(f"\n=== 최근 1시간 평균 조도 ===")
+                                print(f"시간: {current_time.strftime('%Y-%m-%d %H:%M:%S')}")
+                                print(f"평균 조도: {avg_light:.2f} lux")
 
-                            # 주간 시간대이고 조도가 부족한 경우에만 LED 작동
-                            if is_daytime():
-                                brightness = calculate_led_brightness(avg_light)
-                                if brightness > 0:
-                                    print(f"조도 부족 감지 - LED 밝기 설정: {brightness}")
-                                    control_leds(brightness)
-                                    led_control_end_time = current_time + timedelta(hours=1)
+                                # 주간 시간대이고 조도가 부족한 경우에만 LED 작동
+                                if is_daytime():
+                                    brightness = calculate_led_brightness(avg_light)
+                                    if brightness > 0:
+                                        print(f"조도 부족 감지 - LED 밝기 설정: {brightness}")
+                                        control_leds(brightness)
+                                        led_control_end_time = current_time + timedelta(hours=1)
+                                    else:
+                                        print("충분한 조도 - LED 꺼짐")
+                                        control_leds(0)
                                 else:
-                                    print("충분한 조도 - LED 꺼짐")
+                                    print("야간 시간대 - LED 작동 제한")
                                     control_leds(0)
-                            else:
-                                print("야간 시간대 - LED 작동 제한")
-                                control_leds(0)
 
-                        last_average_check = current_time
+                            last_average_check = current_time
 
-                    # LED 작동 시간 체크
-                    if led_control_end_time and current_time >= led_control_end_time:
-                        print("LED 작동 시간 종료")
-                        control_leds(0)
-                        led_control_end_time = None
+                        # LED 작동 시간 체크 (자동 모드일 때만)
+                        if led_control_end_time and current_time >= led_control_end_time:
+                            print("LED 작동 시간 종료")
+                            control_leds(0)
+                            led_control_end_time = None
 
             time.sleep(0.1)
                         
     except Exception as e:
         print(f"Unexpected error in light monitoring: {e}")
     finally:
-        control_leds(0) #LED 끄기
+        if not manual_control:
+            control_leds(0)
         client.close()
 
 if __name__ == "__main__":
