@@ -10,7 +10,7 @@ import asyncio
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     msg = ("안녕하세요!\n"
            "똑똑한 식물 관리 플랫폼\n"
-           "\"Smart Plant Pot\" 입니다!\n"
+           "\"Smart Plant Pot\" 입니다.\n"
            "\n"
            "다음 번호를 선택해주세요.")
 
@@ -21,7 +21,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             InlineKeyboardButton("2. 식물 설정", callback_data="plant_setting"),
         ],
         [
-            InlineKeyboardButton("3. 식물 상태 분석", callback_data="plant_analysis"),
+            InlineKeyboardButton("3. 식물 상태 분석", callback_data="get_analysis"),
             InlineKeyboardButton("4. 타임랩스 조회", callback_data="get_timelapse"),
         ],
         [
@@ -52,7 +52,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "2. 식물 설정: 관리 대상 식물 정보를 입력\n"
             "3. 식물 상태 분석: 현재 상태 분석 리포트 제공\n"
             "4. 타임랩스 조회: 촬영된 식물 타임랩스 확인\n"
-            "5. 물주기 설정: 수동 물주기 및 물탱크 상태 확인\n"
+            "5. 물주기 설정: 수동 물주기 및 물탱크 잔여량 확인\n"
             "6. 조명 설정: 조명 ON/OFF 제어"
         )
     elif query.data == "plant_setting":
@@ -72,24 +72,37 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         response_msg = "식물을 선택해주세요."
 
     elif query.data.startswith("plant_"):
+        chat_id = query.message.chat_id
         # 선택한 식물에 대해 파일 생성 및 데이터 쓰기
         # 식물 유형 추출 (예: "1", "2", "3", "4")
         plant_type = query.data.split("_")[1]
 
-        # 로컬 파일 생성 및 데이터 쓰기
-        # 파일명: plant_1.txt
-        file_path = f"plant_{plant_type}.txt"
+        # 파일명: {chat_id}.txt
+        file_path = f"{chat_id}.txt"
 
-        # 파일 생성 및 '1' 쓰기
+        # 식물 유형에 따른 다르게 내용 작성
+        # "조도 토양수분 온도 습도" 순으로 작성
+        if plant_type == "1":  # 관엽식물
+            content = "15000 50 21 50"
+        elif plant_type == "2":  # 허브/채소류
+            content = "37000 60 20 60"
+        elif plant_type == "3":  # 다육식물/선인장
+            content = "50000 20 27 20"
+        elif plant_type == "4":  # 화초류
+            content = "22000 50 20 55"
+
+        # 파일 생성 및 데이터 쓰기
         with open(file_path, "w") as file:
-            file.write("1")
+            file.write(content)
 
-        response_msg = f"{plant_type} 선택되었습니다. {file_path} 파일에 '1'이 기록되었습니다."
+        response_msg = ("식물이 선택되었습니다.\n"
+                        "\n"
+                        "메뉴로 돌아가시려면 \"/start\"를 입력해주세요.")
 
         # 버튼을 제거하여 빈 키보드로 업데이트
         reply_markup = InlineKeyboardMarkup([])
 
-    elif query.data == "plant_analysis":
+    elif query.data == "get_analysis":
         chat_id = query.message.chat_id
         result = await sr.send_image(chat_id)
         if result is None:
@@ -104,11 +117,36 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         else:
             response_msg = "현재까지 촬영된 타임랩스 영상입니다."
     elif query.data == "water_setting":
-        response_msg = (
-            "물주기 설정:\n"
-            "1. 수동 물주기\n"
-            "2. 물탱크 잔여량 확인"
-        )
+        # 물주기 버튼 생성
+        keyboard = [
+            [
+                InlineKeyboardButton("1. 수동 물주기", callback_data="water_pour"),
+            ],
+            [
+                InlineKeyboardButton("2. 물탱크 잔여량 확인", callback_data="water_tank"),
+            ],
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+
+        response_msg = "버튼을 선택해주세요."
+
+    elif query.data.startswith("water_"):
+        # 물주기 버튼 옵션
+        if query.data == "water_pour":  # 수동 물주기
+            response_msg = "수동 물주기가 작동합니다.\n"
+            ############## 물주기 ##############
+
+        elif query.data == "water_tank":  # 물탱크 잔여량 확인
+            ################# 물탱크 수위 퍼센트 변환 함수#################
+            # 통합하고 지우기
+            response_msg = "현재 물탱크 잔여량입니다."
+            #response_msg = f"현재 물탱크 잔여량은 {}입니다."
+
+        response_msg = ("메뉴로 돌아가시려면 \"/start\"를 입력해주세요.")
+
+        # 버튼을 제거하여 빈 키보드로 업데이트
+        reply_markup = InlineKeyboardMarkup([])
+
     elif query.data == "light_setting":
         response_msg = (
             "조명 설정:\n"
@@ -130,7 +168,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # 사용자 메시지 처리 핸들러 (임의의 메시지에 응답)
 async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # 사용자가 보낸 임의의 메시지에 대해 응답
-    await update.message.reply_text("안녕하세요! 똑똑한 식물 관리 플랫폼 \"SmartPlantPot\" 입니다.\n시작을 위해 \"/start\"를 입력해주세요.")
+    await update.message.reply_text("안녕하세요! \n똑똑한 식물 관리 플랫폼\n\"SmartPlantPot\" 입니다.\n시작을 위해 \"/start\"를 입력해주세요.")
 
 
 # 알 수 없는 명령어 처리 핸들러
