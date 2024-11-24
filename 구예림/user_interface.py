@@ -2,7 +2,6 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, MessageHandler, CommandHandler, filters, ContextTypes, CallbackQueryHandler
 import telegram_bot as tb
-import telegram_
 import asyncio
 
 
@@ -136,14 +135,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         result = await tb.send_video(chat_id)
         print(result)
 
-        # 영상을 성공적으로 보냈는지 확인
-        if result:
-            await query.message.reply_text("메뉴로 돌아가시려면 \"/start\"를 입력해주세요.")
-        else:
-            await query.message.reply_text(
-                "타임랩스를 찾을 수 없습니다.\n"
-                "메뉴로 돌아가시려면 \"/start\"를 입력해주세요."
-            )
+        await query.message.reply_text("메뉴로 돌아가시려면 \"/start\"를 입력해주세요.")
 
     elif query.data == "water_setting":
         # 물주기 버튼 생성
@@ -191,10 +183,18 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # 조명 관리 버튼 생성
         keyboard = [
             [
-                InlineKeyboardButton("1. 조명 켜기", callback_data="light_on"),
+                InlineKeyboardButton("1. 조명 Off", callback_data="light_off"),
             ],
             [
-                InlineKeyboardButton("2. 조명 끄기", callback_data="light_off"),
+                InlineKeyboardButton("2. 조명 25% On", callback_data="light_25"),
+                InlineKeyboardButton("3. 조명 50% On", callback_data="light_50"),
+            ],
+            [
+                InlineKeyboardButton("4. 조명 75% On", callback_data="light_75"),
+                InlineKeyboardButton("5. 조명 100% On", callback_data="light_100"),
+            ],
+            [
+                InlineKeyboardButton("6. 자동 모드로 전환", callback_data="light_auto"),
             ],
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
@@ -203,27 +203,70 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     elif query.data.startswith("light_"):
         # 물주기 버튼 옵션
-        if query.data == "light_on":  # 조명 켜기
-            response_msg = (
-                "조명을 켭니다.\n\n"
-                "메뉴로 돌아가시려면 \"/start\"를 입력해주세요."
-                            )
-            ############################################## 조명 켜기  ####################################################
+        if query.data == "light_25":  # 25% 밝기
+            '''if turn_on_led_with_brightness(25):  # 함수 호출 성공 여부 확인
+                response_msg = (
+                    "조명 밝기를 25%로 설정합니다.\n"
+                    "자동 모드로 돌아가려면 자동 모드 전환을 선택해주세요.\n\n"
+                    "메뉴로 돌아가시려면 \"/start\"를 입력해주세요."
+                )
+            else:
+                response_msg = "조명 설정에 실패했습니다. 다시 시도해주세요."
 
-        elif query.data == "light_off":  # 조명 끄기
-            ###################################### 조명 끄기  ############################################################
+        elif query.data == "light_50":  # 50% 밝기 
+            if turn_on_led_with_brightness(50):
+                response_msg = (
+                    "조명 밝기를 50%로 설정합니다.\n"
+                    "자동 모드로 돌아가려면 자동 모드 전환을 선택해주세요.\n\n"
+                    "메뉴로 돌아가시려면 \"/start\"를 입력해주세요."
+                )
+            else:
+                response_msg = "조명 설정에 실패했습니다. 다시 시도해주세요."
 
-            response_msg = (
-                "조명을 끕니다.\n\n"
-                "메뉴로 돌아가시려면 \"/start\"를 입력해주세요."
-            )
+        elif query.data == "light_75":  # 75% 밝기
+            if turn_on_led_with_brightness(75):
+                response_msg = (
+                    "조명 밝기를 75%로 설정합니다.\n"
+                    "자동 모드로 돌아가려면 자동 모드 전환을 선택해주세요.\n\n"
+                    "메뉴로 돌아가시려면 \"/start\"를 입력해주세요."
+                )
+            else:
+                response_msg = "조명 설정에 실패했습니다. 다시 시도해주세요."
+
+        elif query.data == "light_100":  # 100% 밝기
+            if turn_on_led_with_brightness(100):
+                response_msg = (
+                    "조명 밝기를 100%로 설정합니다.\n"
+                    "자동 모드로 돌아가려면 자동 모드 전환을 선택해주세요.\n\n"
+                    "메뉴로 돌아가시려면 \"/start\"를 입력해주세요."
+                )
+            else:
+                response_msg = "조명 설정에 실패했습니다. 다시 시도해주세요."
+
+        elif query.data == "light_auto":  # 자동 모드 전환
+            if switch_to_auto_mode():
+                response_msg = (
+                    "자동 모드로 전환되었습니다.\n"
+                    "이제 조도에 따라 자동으로 조명이 조절됩니다.\n\n"
+                    "메뉴로 돌아가시려면 \"/start\"를 입력해주세요."
+                )
+            else:
+                response_msg = "모드 전환에 실패했습니다. 다시 시도해주세요."'''
 
         keyboard = [
             [
-                InlineKeyboardButton("1. 조명 켜기", callback_data="light_on"),
+                InlineKeyboardButton("1. 조명 Off", callback_data="light_off"),
             ],
             [
-                InlineKeyboardButton("2. 조명 끄기", callback_data="light_off"),
+                InlineKeyboardButton("2. 조명 25% On", callback_data="light_25"),
+                InlineKeyboardButton("3. 조명 50% On", callback_data="light_50"),
+            ],
+            [
+                InlineKeyboardButton("4. 조명 75% On", callback_data="light_75"),
+                InlineKeyboardButton("5. 조명 100% On", callback_data="light_100"),
+            ],
+            [
+                InlineKeyboardButton("6. 자동 모드로 전환", callback_data="light_auto"),
             ],
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)

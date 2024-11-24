@@ -1,5 +1,8 @@
 # 텔레그램 봇
+import asyncio
+
 import telegram
+
 import os
 from dotenv import load_dotenv
 
@@ -45,14 +48,17 @@ async def send_image(chat_id):
 
 # 타임랩스 조회 - 동영상 전송
 async def send_video(chat_id):
+    # request = request(read_timeout=60, connect_timeout=60)
     bot = telegram.Bot(token=load_telegram()[0])
 
     try:
         video_path = "test_video.mp4"
         ################################ def create_video_from_photos() ################################################
         await bot.send_video(chat_id, video_path)
+        await asyncio.sleep(2)
         return True
     except Exception as e:
+        print("Video Exception : ")
         print(e)
         return None
 
