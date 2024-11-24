@@ -2,7 +2,6 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, MessageHandler, CommandHandler, filters, ContextTypes, CallbackQueryHandler
 import telegram_bot as tb
-import telegram_
 import asyncio
 
 
@@ -136,14 +135,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         result = await tb.send_video(chat_id)
         print(result)
 
-        # 영상을 성공적으로 보냈는지 확인
-        if result:
-            await query.message.reply_text("메뉴로 돌아가시려면 \"/start\"를 입력해주세요.")
-        else:
-            await query.message.reply_text(
-                "타임랩스를 찾을 수 없습니다.\n"
-                "메뉴로 돌아가시려면 \"/start\"를 입력해주세요."
-            )
+        await query.message.reply_text("메뉴로 돌아가시려면 \"/start\"를 입력해주세요.")
 
     elif query.data == "water_setting":
         # 물주기 버튼 생성
