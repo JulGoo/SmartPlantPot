@@ -19,10 +19,10 @@ async def send_image(chat_id):
         ########## def visualize_and_save_image()  :param period: '7d', '30d', '1y', or 'all' ##########################
         ################################### def visualize_and_save_image(dataframes, period) ###########################
         await bot.send_photo(chat_id, image_path)
+        return True
     except Exception as e:
         print(e)
         return None
-    return True
 
 
 # 동영상 전송
@@ -33,7 +33,7 @@ async def send_video(chat_id):
         video_path = "test_video.mp4"
         ################################ def create_video_from_photos() ################################################
         await bot.send_video(chat_id, video_path)
+        return True
     except Exception as e:
         print(e)
         return None
-    return True

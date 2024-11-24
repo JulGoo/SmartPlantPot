@@ -128,11 +128,23 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     elif query.data == "get_timelapse":
         chat_id = query.message.chat_id
+
+        # 메시지 먼저 전송
+        await query.message.reply_text("타임랩스를 가져오는 중입니다.")
+
+        # 타임랩스 영상 전송
         result = await sr.send_video(chat_id)
+
+        # 영상을 성공적으로 보냈는지 확인
         if result is None:
-            response_msg = "타임랩스 영상이 없습니다."
+            # 분석 결과가 없을 경우 알림 메시지 추가 전송
+            await query.message.reply_text(
+                "타임랩스를 찾을 수 없습니다.\n"
+                "\n"
+                "메뉴로 돌아가시려면 \"/start\"를 입력해주세요."
+            )
         else:
-            response_msg = "현재까지 촬영된 타임랩스 영상입니다."
+            await query.message.reply_text("메뉴로 돌아가시려면 \"/start\"를 입력해주세요.")
 
     elif query.data == "water_setting":
         # 물주기 버튼 생성
