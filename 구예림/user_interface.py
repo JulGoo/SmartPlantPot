@@ -1,8 +1,8 @@
 # 사용자 명령어 인터페이스
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, MessageHandler, CommandHandler, filters, ContextTypes, CallbackQueryHandler
-import status_report as sr
 import telegram_bot as tb
+import telegram_
 import asyncio
 
 
@@ -12,7 +12,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
            "똑똑한 식물 관리 플랫폼\n"
            "\"Smart Plant Pot\" 입니다.\n"
            "\n"
-           "다음 번호를 선택해주세요.")
+           "다음 버튼을 선택해주세요.")
 
     # GUI 버튼으로 선택지 구성
     keyboard = [
@@ -110,7 +110,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.message.reply_text("식물 상태 분석 결과입니다.")
 
         # 식물 상태 분석 이미지 전송
-        result = await sr.send_image(chat_id)
+        result = await tb.send_image(chat_id)
 
         # 이미지를 성공적으로 보냈는지 확인
         if result is None:
@@ -133,18 +133,17 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.message.reply_text("타임랩스를 가져오는 중입니다.")
 
         # 타임랩스 영상 전송
-        result = await sr.send_video(chat_id)
+        result = await tb.send_video(chat_id)
+        print(result)
 
         # 영상을 성공적으로 보냈는지 확인
-        if result is None:
-            # 분석 결과가 없을 경우 알림 메시지 추가 전송
+        if result:
+            await query.message.reply_text("메뉴로 돌아가시려면 \"/start\"를 입력해주세요.")
+        else:
             await query.message.reply_text(
                 "타임랩스를 찾을 수 없습니다.\n"
-                "\n"
                 "메뉴로 돌아가시려면 \"/start\"를 입력해주세요."
             )
-        else:
-            await query.message.reply_text("메뉴로 돌아가시려면 \"/start\"를 입력해주세요.")
 
     elif query.data == "water_setting":
         # 물주기 버튼 생성
@@ -170,7 +169,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             ######################### 물 공급 함수 #######################################################################
 
         elif query.data == "water_tank":  # 물탱크 잔여량 확인
-            ############################ 물탱크 수위 퍼센트 변환 함수########################################################
+            ############################ 물탱크 수위 확인                ##################################################
             # 통합하고 지우기
             response_msg = "현재 물탱크 잔여량입니다."
             #response_msg = (
