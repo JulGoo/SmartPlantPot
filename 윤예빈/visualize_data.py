@@ -1,12 +1,12 @@
-import os
 import pandas as pd
 from influxdb import InfluxDBClient
 import matplotlib.pyplot as plt
 import io
+import os
 
 def fetch_data_from_influxdb(period: str):
     """
-    InfluxDB에서 사용자 지정 기간의 데이터를 불러옵니다.
+    InfluxDB에서 사용자 지정 기간의 데이터를 불러옴
     :param period: '7d', '30d', '1y', or 'all'
     :return: 데이터프레임 딕셔너리
     """
@@ -18,7 +18,7 @@ def fetch_data_from_influxdb(period: str):
     elif period == "30d":
         time_filter = "WHERE time > now() - 30d"
     elif period == "1y":
-        time_filter = "WHERE time > now() - 365d"
+        time_filter = "WHERE time > now() - 365d"    # influxDB에서 1y를 인식하지 못함 -> 365d
     elif period == "all":
         time_filter = ""
     else:
@@ -53,54 +53,7 @@ def visualize_and_save_image(dataframes, period):
 
     # 조도
     if "lux" in dataframes and not dataframes["lux"].empty:
-        ax[0].plot(pd.to_datetime(dataframes["lux"]["time"]), dataframes["lux"]["value"], label="Lux", color="orange")
-        ax[0].set_title(f"Light Exposure")
-        ax[0].set_ylabel("Lux")
-        ax[0].legend()
-
-    # 온도
-    if "temperature" in dataframes and not dataframes["temperature"].empty:
-        ax[1].plot(pd.to_datetime(dataframes["temperature"]["time"]), dataframes["temperature"]["value"], label="Temperature", color="red")
-        ax[1].set_title("Temperature")
-        ax[1].set_ylabel("°C")
-        ax[1].legend()
-
-    # 습도
-    if "humidity" in dataframes and not dataframes["humidity"].empty:
-        ax[2].plot(pd.to_datetime(dataframes["humidity"]["time"]), dataframes["humidity"]["value"], label="Humidity", color="blue")
-        ax[2].set_title("Humidity")
-        ax[2].set_ylabel("%")
-        ax[2].legend()
-
-    # 공통 설정
-    ax[2].set_xlabel("Time")
-    plt.tight_layout()
-
-    # 테스트용 이미지 저장 코드 추가
-    # 나중에 주석 처리하거나 제거해야 함
-    test_image_path = "test_image"
-    if not os.path.exists(test_image_path):
-        os.makedirs(test_image_path)
-    test_file_path = os.path.join(test_image_path, f"visualization_{period}.png")
-    plt.savefig(test_file_path)
-    print(f"[TEST] Image saved at {test_file_path}")
-
-    # 원래 코드: 메모리로 저장
-    buffer = io.BytesIO()
-    plt.savefig(buffer, format="png")
-    buffer.seek(0)
-    plt.close(fig)
-
-    return buffer
-
-def main():
-    """메인 함수"""
-    print("Select the period for visualization:")  # 사용자 입력
-    print("1. Last 7 days (7d)")
-    print("2. Last 30 days (30d)")
-    print("3. Last 1 year (1y)")
-    print("4. All data (all)")
-    choice = input("Enter your choice (1/2/3/4): ")  # TODO: 나중에 Telegram으로 대체 예정
+        ax[0].plot(pd.to_datetime(dataframes["lux"]["time"]), dataframes["lux"]["드
 
     period_map = {
         "1": "7d",
