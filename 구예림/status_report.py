@@ -26,11 +26,9 @@ async def send_image(chat_id):
 async def send_video(chat_id):
     bot = telegram.Bot(token=tb.load_telegram()[0])
 
-    # 에러 수정 필요
-    # File "/var/lib/engine/tmpfs_numa0/test_video.mp4" of size 14598977 bytes is too big for a photo
     try:
         video_path = "test_video.mp4"
-        await bot.send_photo(chat_id, video_path)
+        await bot.send_video(chat_id, video_path)
     except Exception as e:
         print(e)
         return None

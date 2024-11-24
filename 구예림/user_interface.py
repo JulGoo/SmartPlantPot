@@ -1,6 +1,6 @@
 # 사용자 명령어 인터페이스
-from telegram import Update, ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Application, MessageHandler, CommandHandler, filters, ContextTypes
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import Application, MessageHandler, CommandHandler, filters, ContextTypes, CallbackQueryHandler
 import status_report as sr
 import telegram_bot as tb
 import asyncio
@@ -18,53 +18,85 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [
         [
             InlineKeyboardButton("1. 도움말", callback_data="help"),
-            InlineKeyboardButton("2. 식물설정", callback_data="plant_setting"),
+            InlineKeyboardButton("2. 식물 설정", callback_data="plant_setting"),
         ],
         [
-            InlineKeyboardButton("3. 식물상태분석", callback_data="plant_analysis"),
-            InlineKeyboardButton("4. 타임랩스받기", callback_data="get_timelapse"),
+            InlineKeyboardButton("3. 식물 상태 분석", callback_data="plant_analysis"),
+            InlineKeyboardButton("4. 타임랩스 조회", callback_data="get_timelapse"),
+        ],
+        [
+            InlineKeyboardButton("5. 물주기 설정", callback_data="water_setting"),
+            InlineKeyboardButton("6. 조명 설정", callback_data="light_setting"),
         ],
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    # 메세지 전송
-    await update.message.reply_text(
-        msg,
-        reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-    )
+    # 메시지 전송
+    await update.message.reply_text(msg, reply_markup=reply_markup)
 
 
-# 메시지 수신 핸들러
-async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_message = update.message.text
-    chat_id = update.message.chat_id
-    msg = f"'{user_message}' 는 없는 선택지입니다. 다시 입력해주세요."
+# 버튼 클릭 이벤트 핸들러
+async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
 
-    # 메시지에 따라 행동 정의
-    if ("1" in user_message) or ("도움말" in user_message):
-        msg = ("명령어 도움말 입니다.\n"
-               "1. 도움말\n"
-               "2. 식물설정\n"
-               "3. 식물상태분석\n"
-               "4. 타임랩스")
-    elif ("2" in user_message) or ("식물설정" in user_message):
-        msg = ("식물을 선택해주세요.\n"
-               "1. 바나나\n"
-               "2. 망고")
-    elif ("3" in user_message) or ("식물상태분석" in user_message):
+    # 사용자가 지정되지 않은 메세지를 입력했을 때, 안내 메세지
+    if query is None:
+        await update.message.reply_text("안녕하세요! 똑똑한 식물 관리 플랫폼 \"SmartPlantPot\" 입니다.\n시작을 위해 \"/start\"를 입력해주세요.")
+        return
+
+    # 버튼 클릭 시 로딩 표시 제거
+    await query.answer()
+
+    response_msg = ""
+
+    # 버튼의 callback_data에 따라 동작 수행
+    if query.data == "help":
+        response_msg = (
+            "명령어 도움말:\n\n"
+            "1. 도움말: 사용 가능한 기능에 대한 설명\n"
+            "2. 식물 설정: 관리 대상 식물 정보를 입력\n"
+            "3. 식물 상태 분석: 현재 상태 분석 리포트 제공\n"
+            "4. 타임랩스 조회: 촬영된 식물 타임랩스 확인\n"
+            "5. 물주기 설정: 수동 물주기 및 물탱크 상태 확인\n"
+            "6. 조명 설정: 조명 ON/OFF 제어"
+        )
+    elif query.data == "plant_setting":
+        response_msg = (
+            "식물을 선택해주세요.\n"
+            "1. 관엽식물\n"
+            "2. 허브/채소류\n"
+            "3. 다육식물/선인장\n"
+            "4. 화초류\n"
+        )
+    elif query.data == "plant_analysis":
+        chat_id = query.message.chat_id  # 수정된 부분
         result = await sr.send_image(chat_id)
         if result is None:
-            msg = "사진 파일이 없습니다."
+            response_msg = "사진 파일이 없습니다."
         else:
-            msg = "식물 상태 분석 결과 입니다."
-    elif ("4" in user_message) or ("타임랩스받기" in user_message):
+            response_msg = "식물 상태 분석 결과입니다."
+    elif query.data == "get_timelapse":
+        chat_id = query.message.chat_id  # 수정된 부분
         result = await sr.send_video(chat_id)
         if result is None:
-            msg = "타임랩스 영상이 없습니다."
+            response_msg = "타임랩스 영상이 없습니다."
         else:
-            msg = "현재까지 촬영된 타임랩스 영상 입니다."
+            response_msg = "현재까지 촬영된 타임랩스 영상입니다."
+    elif query.data == "water_setting":
+        response_msg = (
+            "물주기 설정:\n"
+            "1. 수동 물주기\n"
+            "2. 물탱크 잔여량 확인"
+        )
+    elif query.data == "light_setting":
+        response_msg = (
+            "조명 설정:\n"
+            "1. 조명 켜기\n"
+            "2. 조명 끄기"
+        )
 
-    await update.message.reply_text(msg)
+    # 클릭한 버튼에 대한 응답 메시지 전송
+    await query.edit_message_text(response_msg)
 
 
 # 알 수 없는 명령어 처리 핸들러
@@ -77,27 +109,25 @@ async def main():
     # 어플리케이션 생성
     application = Application.builder().token(tb.load_telegram()[0]).build()
 
-    # 수신 메세지에 따른 핸들러 추가
+    # 핸들러 추가
     application.add_handler(CommandHandler("start", start))
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    application.add_handler(CallbackQueryHandler(button_handler))
     application.add_handler(MessageHandler(filters.COMMAND, unknown_command))
 
-    # 애플리케이션 초기화 및 실행
+    # 애플리케이션 실행
     await application.initialize()
     await application.start()
-    # 대기 상태(메세지 수신 상태 확인)
     await application.updater.start_polling()
-    print("텔레그램 봇 실행...")
+    print("텔레그램 봇 실행 중...")
 
     try:
         while True:
-            # 1초 간격으로 대기 상태 유지
-            await asyncio.sleep(1)
+            await asyncio.sleep(1)  # 대기 상태 유지
     except KeyboardInterrupt:
-        print("텔레그램 봇 종료...")
+        print("텔레그램 봇 종료 중...")
         await application.stop()
 
 
-# 테스트 메인 함수
+# 프로그램 실행
 if __name__ == "__main__":
     asyncio.run(main())
