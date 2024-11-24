@@ -15,7 +15,7 @@ client = InfluxDBClient(host='localhost', port=8086, username='root', password='
 def get_moisture_threshold():
     moisture_threshold = 30  # 기본값
     try:
-        with open("threshold.txt", "r") as file:
+        with open("../threshold/threshold.txt", "r") as file:
             lines = file.readlines()
             threshold = lines[0].strip()    # 첫번째 줄만 읽기
             moisture_threshold = int(threshold)

@@ -3,7 +3,7 @@ import time
 import os
 from influxdb import InfluxDBClient
 
-save_directory = "/home/pi/timelapse"
+save_directory ="/home/pi/SmartPlantPot/plant_images"
 capture_interval = 14400
 
 def capture_photos_from_webcam():
@@ -12,25 +12,23 @@ def capture_photos_from_webcam():
 
     cap = cv2.VideoCapture(0)
 
-    save_directory ="/home/pi/timelapse"
-
     if not os.path.exists(save_directory):
         os.makedirs(save_directory)
 
 
     if not cap.isOpened():
-        print("no webcam")
+        print("captuer.py: no webcam")
         exit()
 
     try:
         while True:
             timestamp = time.strftime("%Y%m%d_%H%M%S")
-            filename = f"photo_{timestamp}.jpg"
+            filename = f"{timestamp}.jpg"
 
             ret, frame = cap.read()
             if ret:
                 cv2.imwrite(os.path.join(save_directory, filename), frame)
-                print(f"{filename} ok.")
+                print(f"captuer.py: {filename} ok.")
 
                 json_body = [
                         {
@@ -45,14 +43,14 @@ def capture_photos_from_webcam():
                             }
                         ]
                 client.write_points(json_body)
-                print(f"{filename} store ok")
+                print(f"captuer.py: {filename} store ok")
             else:
-                print("no capture")
+                print("captuer.py: no capture")
 
             time.sleep(capture_interval)
 
     except KeyboardInterrupt:
-        print("stop")
+        print("captuer.py: stop")
 
     finally:
         cap.release()
