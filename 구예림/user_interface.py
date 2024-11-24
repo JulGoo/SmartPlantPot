@@ -39,11 +39,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
 
-    # 사용자가 지정되지 않은 메세지를 입력했을 때, 안내 메세지
-    if query is None:
-        await update.message.reply_text("안녕하세요! 똑똑한 식물 관리 플랫폼 \"SmartPlantPot\" 입니다.\n시작을 위해 \"/start\"를 입력해주세요.")
-        return
-
     # 버튼 클릭 시 로딩 표시 제거
     await query.answer()
 
@@ -52,7 +47,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # 버튼의 callback_data에 따라 동작 수행
     if query.data == "help":
         response_msg = (
-            "명령어 도움말:\n\n"
+            "명령어 도움말\n\n"
             "1. 도움말: 사용 가능한 기능에 대한 설명\n"
             "2. 식물 설정: 관리 대상 식물 정보를 입력\n"
             "3. 식물 상태 분석: 현재 상태 분석 리포트 제공\n"
@@ -61,22 +56,48 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "6. 조명 설정: 조명 ON/OFF 제어"
         )
     elif query.data == "plant_setting":
-        response_msg = (
-            "식물을 선택해주세요.\n"
-            "1. 관엽식물\n"
-            "2. 허브/채소류\n"
-            "3. 다육식물/선인장\n"
-            "4. 화초류\n"
-        )
+        # 식물 선택 버튼 생성
+        keyboard = [
+            [
+                InlineKeyboardButton("1. 관엽식물", callback_data="plant_1"),
+                InlineKeyboardButton("2. 허브/채소류", callback_data="plant_2"),
+            ],
+            [
+                InlineKeyboardButton("3. 다육식물/선인장", callback_data="plant_3"),
+                InlineKeyboardButton("4. 화초류", callback_data="plant_4"),
+            ],
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+
+        response_msg = "식물을 선택해주세요."
+
+    elif query.data.startswith("plant_"):
+        # 선택한 식물에 대해 파일 생성 및 데이터 쓰기
+        # 식물 유형 추출 (예: "1", "2", "3", "4")
+        plant_type = query.data.split("_")[1]
+
+        # 로컬 파일 생성 및 데이터 쓰기
+        # 파일명: plant_1.txt
+        file_path = f"plant_{plant_type}.txt"
+
+        # 파일 생성 및 '1' 쓰기
+        with open(file_path, "w") as file:
+            file.write("1")
+
+        response_msg = f"{plant_type} 선택되었습니다. {file_path} 파일에 '1'이 기록되었습니다."
+
+        # 버튼을 제거하여 빈 키보드로 업데이트
+        reply_markup = InlineKeyboardMarkup([])
+
     elif query.data == "plant_analysis":
-        chat_id = query.message.chat_id  # 수정된 부분
+        chat_id = query.message.chat_id
         result = await sr.send_image(chat_id)
         if result is None:
             response_msg = "사진 파일이 없습니다."
         else:
             response_msg = "식물 상태 분석 결과입니다."
     elif query.data == "get_timelapse":
-        chat_id = query.message.chat_id  # 수정된 부분
+        chat_id = query.message.chat_id
         result = await sr.send_video(chat_id)
         if result is None:
             response_msg = "타임랩스 영상이 없습니다."
@@ -96,7 +117,20 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
 
     # 클릭한 버튼에 대한 응답 메시지 전송
-    await query.edit_message_text(response_msg)
+    if response_msg:
+        # "식물 설정" 메뉴를 클릭했을 때만 식물 선택 버튼을 전송
+        if query.data == "plant_setting" or query.data.startswith("plant_"):
+            # 메시지와 함께 식물 선택 버튼을 갱신
+            await query.edit_message_text(response_msg, reply_markup=reply_markup)
+        else:
+            # 그 외에는 기존 버튼을 유지하도록 설정
+            await query.edit_message_text(response_msg, reply_markup=query.message.reply_markup)
+
+
+# 사용자 메시지 처리 핸들러 (임의의 메시지에 응답)
+async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    # 사용자가 보낸 임의의 메시지에 대해 응답
+    await update.message.reply_text("안녕하세요! 똑똑한 식물 관리 플랫폼 \"SmartPlantPot\" 입니다.\n시작을 위해 \"/start\"를 입력해주세요.")
 
 
 # 알 수 없는 명령어 처리 핸들러
@@ -112,6 +146,7 @@ async def main():
     # 핸들러 추가
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CallbackQueryHandler(button_handler))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, message_handler))
     application.add_handler(MessageHandler(filters.COMMAND, unknown_command))
 
     # 애플리케이션 실행
