@@ -2,6 +2,7 @@ import time
 import RPi.GPIO as GPIO
 from influxdb import InfluxDBClient as influxdb
 from water_tank_monitor import log_water_tank_level, get_tank_level_percent
+from status_report import msg_water
 
 # GPIO 설정
 MOTER_PIN = 14  # 수중 모터 핀(우측위에서 3번째)
@@ -76,8 +77,9 @@ def monitor_and_control_soil_moisture(queue):
 
                 # 임계값 비교 후 물 공급
                 if soil_moisture_percent < get_moisture_threshold():
-                    print("토양 습도 임계값보다 낮음, 모터 작동")
                     activate_water_pump()
+                    print("토양 습도 임계값보다 낮음, 모터 작동")
+                    msg_water() # 텔레그램 물주기 알람
 
         time.sleep(1)  # 대기(테스트)
         #time.sleep(600)  # 대기(10분)
