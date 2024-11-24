@@ -133,16 +133,17 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif query.data.startswith("water_"):
         # 물주기 버튼 옵션
         if query.data == "water_pour":  # 수동 물주기
-            response_msg = "수동 물주기가 작동합니다.\n"
-            ############## 물주기 ##############
+            response_msg = (
+                "수동 물주기가 작동합니다.\n\n"
+                "메뉴로 돌아가시려면 \"/start\"를 입력해주세요."
+                            )
+            ######################### 물주기 ############################################################################
 
         elif query.data == "water_tank":  # 물탱크 잔여량 확인
-            ################# 물탱크 수위 퍼센트 변환 함수#################
+            ################# 물탱크 수위 퍼센트 변환 함수###################################################################
             # 통합하고 지우기
             response_msg = "현재 물탱크 잔여량입니다."
             #response_msg = f"현재 물탱크 잔여량은 {}입니다."
-
-        response_msg = ("메뉴로 돌아가시려면 \"/start\"를 입력해주세요.")
 
         # 버튼을 제거하여 빈 키보드로 업데이트
         reply_markup = InlineKeyboardMarkup([])
@@ -157,7 +158,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # 클릭한 버튼에 대한 응답 메시지 전송
     if response_msg:
         # "식물 설정" 메뉴를 클릭했을 때만 식물 선택 버튼을 전송
-        if query.data == "plant_setting" or query.data.startswith("plant_"):
+        if query.data.startswith("plant_") or query.data.startswith("water_"):
             # 메시지와 함께 식물 선택 버튼을 갱신
             await query.edit_message_text(response_msg, reply_markup=reply_markup)
         else:
