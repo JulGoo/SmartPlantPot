@@ -8,12 +8,15 @@ TANK_HEIGHT_CM = 22  # 물탱크 높이 (cm)
 # 물탱크 퍼센트
 tank_leverl_percent = 0  # 물탱크 수위 퍼센트
 
+# 물탱크 센서 값
+water_tank_value = 0
+
 # InfluxDB 연결 설정
 client = InfluxDBClient(host='localhost', port=8086, username='root', password='root', database='spp')
 
 # 물탱크 수위 퍼센트 변환 함수
-def get_tank_level_percent(distance_to_water):
-    water_height = TANK_HEIGHT_CM - distance_to_water
+def get_tank_level_percent():
+    water_height = TANK_HEIGHT_CM - water_tank_value
     level_percent = max(0, min(100, (water_height / TANK_HEIGHT_CM) * 100))
     return int(level_percent)
 
@@ -47,10 +50,11 @@ def monitor_and_log_water_tank_level(queue):
         if not queue.empty():
             data_type, value = queue.get()
             if data_type == 'water_tank_value':
-                distance_to_water = value
+                global water_tank_value 
+                water_tank_value = value
 
                 # 물탱크 수위 계산
-                level_percent = get_tank_level_percent(distance_to_water)
+                level_percent = get_tank_level_percent()
 
                 if(tank_leverl_percent <= 10):
                     print('water_tank_monitor.py: 물탱크 수위가 10% 이하')

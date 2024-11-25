@@ -54,6 +54,7 @@ def activate_water_pump():
     GPIO.output(MOTER_PIN, GPIO.LOW)  # 모터 ON
     time.sleep(2)  # 물 공급 시간
     GPIO.output(MOTER_PIN, GPIO.HIGH)  # 모터 OFF
+
     log_water_tank_level(get_tank_level_percent())    # 물탱크 수위 최신화
 
 # 토양 습도 제어

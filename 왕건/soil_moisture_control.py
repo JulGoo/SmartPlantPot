@@ -1,6 +1,6 @@
 import time
 import RPi.GPIO as GPIO
-from influxdb import InfluxDBClient as influxdb
+from influxdb import InfluxDBClient
 from water_tank_monitor import log_water_tank_level, get_tank_level_percent
 from status_report import msg_water
 
@@ -10,21 +10,18 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setup(MOTER_PIN, GPIO.OUT)
 
 # InfluxDB 연결 설정
-client = influxdb(host='',
-                username='', 
-                password='', 
-                database='')
+client = InfluxDBClient(host='localhost', port=8086, username='root', password='root', database='spp')
 
 # 토양 습도 퍼센트 임계값 설정 함수
 def get_moisture_threshold():
     moisture_threshold = 30  # 기본값
     try:
-        with open("threshold.txt", "r") as file:
+        with open("../threshold/threshold.txt", "r") as file:
             lines = file.readlines()
             threshold = lines[0].strip()    # 첫번째 줄만 읽기
             moisture_threshold = int(threshold)
     except FileNotFoundError:
-        print("토양습도 임계값 파일을 찾을 수 없습니다. 기본 임계값을 사용합니다.")
+        print("soil_moisture_control.py: 토양습도 임계값 파일을 찾을 수 없습니다. 기본 임계값을 사용합니다.")
     return moisture_threshold
 
 # 토양 습도 퍼센트 변환 함수
@@ -36,6 +33,7 @@ def log_soil_moisture(soil_moisture):
     data = [
         {
             "measurement": "soil_moisture",
+            "time": datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ'),
             "fields": {
                 "soil_moisture": soil_moisture
             }
@@ -43,8 +41,10 @@ def log_soil_moisture(soil_moisture):
     ]
     try:
         client.write_points(data)
+        print(f"soil_moisture_control.py: 토양습도 데이터 InfluxDB저장. {soil_moisture}%")
+
     except Exception as e:
-        print("Error writing soil moisture to InfluxDB:", e)
+        print("soil_moisture_control.py: InfluxDB 에러", e)
     finally:
         if client is not None:
             client.close()
@@ -54,6 +54,7 @@ def activate_water_pump():
     GPIO.output(MOTER_PIN, GPIO.LOW)  # 모터 ON
     time.sleep(2)  # 물 공급 시간
     GPIO.output(MOTER_PIN, GPIO.HIGH)  # 모터 OFF
+
     log_water_tank_level(get_tank_level_percent())    # 물탱크 수위 최신화
 
 # 토양 습도 제어
@@ -64,13 +65,11 @@ def monitor_and_control_soil_moisture(queue):
             data_type, value = queue.get()
             if data_type == 'soil_moisture_value':
                 soil_moisture = value
-                print('토양습도센서 값: ', soil_moisture)
 
                 # 토양 습도 계산
                 soil_moisture_percent = get_soil_moisture_percent(soil_moisture)
 
-                print('토양습도센서 퍼센트: ', get_soil_moisture_percent
-                (soil_moisture), '%')
+                print('soil_moisture_control.py: 토양습도 퍼센트(', soil_moisture_percent, "%)")
 
                 # 토양 습도 기록
                 log_soil_moisture(soil_moisture_percent)
@@ -78,7 +77,7 @@ def monitor_and_control_soil_moisture(queue):
                 # 임계값 비교 후 물 공급
                 if soil_moisture_percent < get_moisture_threshold():
                     activate_water_pump()
-                    print("토양 습도 임계값보다 낮음, 모터 작동")
+                    print("soil_moisture_control.py: 토양 습도 임계값보다 낮음, 모터 작동")
                     msg_water() # 텔레그램 물주기 알람
 
         time.sleep(1)  # 대기(테스트)
