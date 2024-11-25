@@ -83,15 +83,15 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         file_path = f"{chat_id}.txt"
 
         # 식물 유형에 따른 다르게 내용 작성
-        # "조도 토양수분 온도 습도" 순으로 작성
+        # "토양수분 조도 온도 습도" 순으로 작성
         if plant_type == "1":  # 관엽식물
-            content = "15000 50 21 50"
+            content = "50\n15000\n21\n50"
         elif plant_type == "2":  # 허브/채소류
-            content = "37000 60 20 60"
+            content = "60\n37000\n20\n60"
         elif plant_type == "3":  # 다육식물/선인장
-            content = "50000 20 27 20"
+            content = "20\n50000\n27\n20"
         elif plant_type == "4":  # 화초류
-            content = "22000 50 20 55"
+            content = "50\n22000\n20\n55"
 
         # 파일 생성 및 데이터 쓰기
         with open(file_path, "w") as file:
