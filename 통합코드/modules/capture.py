@@ -3,8 +3,11 @@ import time
 import os
 from influxdb import InfluxDBClient
 
+# 이미지 저장 경로
 save_directory ="/home/pi/SmartPlantPot/plant_images"
-capture_interval = 14400
+
+# 이미지 저장 주기
+capture_interval = 14400    # (4시간)
 
 def capture_photos_from_webcam():
 
@@ -17,7 +20,7 @@ def capture_photos_from_webcam():
 
 
     if not cap.isOpened():
-        print("captuer.py: no webcam")
+        print("captuer.py: 웹캠 연결 실패")
         exit()
 
     try:
@@ -28,7 +31,7 @@ def capture_photos_from_webcam():
             ret, frame = cap.read()
             if ret:
                 cv2.imwrite(os.path.join(save_directory, filename), frame)
-                print(f"captuer.py: {filename} ok.")
+                print(f"captuer.py: 이미지 저장 완료 '/plant_images/{filename}' ")
 
                 json_body = [
                         {
@@ -43,14 +46,13 @@ def capture_photos_from_webcam():
                             }
                         ]
                 client.write_points(json_body)
-                print(f"captuer.py: {filename} store ok")
             else:
-                print("captuer.py: no capture")
+                print("captuer.py: 이미지 저장 실패")
 
             time.sleep(capture_interval)
 
     except KeyboardInterrupt:
-        print("captuer.py: stop")
+        print("captuer.py: KeyboardInterrupt")
 
     finally:
         cap.release()
