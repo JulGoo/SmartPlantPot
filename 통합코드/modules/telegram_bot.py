@@ -49,7 +49,7 @@ async def send_image(chat_id):
         
         latest_file = max(image_files, key=os.path.getctime)
 
-        await bot.send_photo(chat_id, photo=open(latest_file, 'rb'), captuion="🌱 최근 식물 사진")
+        await bot.send_photo(chat_id, photo=open(latest_file, 'rb'), captuion="🌱 식물의 최근 모습")
 
 
         # 시각화 이미지 전송
@@ -64,15 +64,15 @@ async def send_image(chat_id):
             image_buffer = visualize_and_save_image(dataframes, period)
 
             # 텔레그램 메시지와 이미지 전송
-            caption = f"📊 {period_names[period]} 동안의 시각화"
+            caption = f"📊 {period_names[period]}간의 기록.."
 
             await bot.send_photo(chat_id, photo=image_buffer, caption=caption)
 
         # 식물 상태 전송
         result = model_predict(latest_file)
-        status = "정상" if result else "비정상"
+        status = "🤗 식물이 건강해요!!" if result else "😥 식물이 아픈 거 같아요.."
 
-        await bot.sendMessage(chat_id, text=f"🌱 식물 상태: {status}")
+        await bot.sendMessage(chat_id, text=status)
         await asyncio.sleep(2)
         return True
     except Exception as e:
