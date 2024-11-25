@@ -49,12 +49,12 @@ async def send_image(chat_id):
         
         latest_file = max(image_files, key=os.path.getctime)
 
-        await bot.send_photo(chat_id, photo=open(latest_file, 'rb'))
+        await bot.send_photo(chat_id, photo=open(latest_file, 'rb'), captuion="🌱 최근 식물 사진")
 
 
         # 시각화 이미지 전송
-        periods = ["7d", "30d", "365d"]
-        period_names = {"7d": "지난 일주일", "30d": "지난 한 달", "365d": "지난 일 년"}
+        periods = ["7d", "30d", "1y"]
+        period_names = {"7d": "지난 일주일", "30d": "지난 한 달", "1y": "지난 일 년"}
 
         for period in periods:
             # 데이터프레임 생성

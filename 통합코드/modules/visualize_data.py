@@ -84,14 +84,6 @@ def visualize_and_save_image(dataframes, period):
     ax[3].set_xlabel("Time")
     plt.tight_layout()
 
-    # 테스트용 이미지 저장 코드 추가
-    test_image_path = "test_image"
-    if not os.path.exists(test_image_path):
-        os.makedirs(test_image_path)
-    test_file_path = os.path.join(test_image_path, f"visualization_{period}.png")
-    plt.savefig(test_file_path)
-    print(f"[TEST] Image saved at {test_file_path}")
-
     # 원래 코드: 메모리로 저장
     buffer = io.BytesIO()
     plt.savefig(buffer, format="png")

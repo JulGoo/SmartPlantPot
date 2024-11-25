@@ -3,8 +3,9 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, MessageHandler, CommandHandler, filters, ContextTypes, CallbackQueryHandler
 import telegram_bot as tb
 import asyncio
-from resnet50_model import model_predict
-
+from soil_moisture_control import activate_water_pump
+from water_tank_monitor import get_current_tank_level_percent
+from light_control_system import turn_on_led_with_brightness, switch_to_auto_mode
 
 # 처음 접속 시 안내 메세지
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -116,10 +117,10 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if result is None:
             # 분석 결과가 없을 경우 알림 메시지 추가 전송
             await query.message.reply_text(
-                "분석 결과 이미지를 찾을 수 없습니다.\n"
-                "\n"
-                "메뉴로 돌아가시려면 \"/start\"를 입력해주세요."
+                "분석 결과 이미지를 찾을 수 없습니다."
             )
+        
+        await query.message.reply_text("메뉴로 돌아가시려면 \"/start\"를 입력해주세요.")
 
 
     elif query.data == "get_timelapse":
@@ -130,7 +131,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         # 타임랩스 영상 전송
         result = await tb.send_video(chat_id)
-        print(result)
+        print("user_interface.py: 타임랩스 전송 성공 여부: ", result)
 
         await query.message.reply_text("메뉴로 돌아가시려면 \"/start\"를 입력해주세요.")
 
@@ -155,16 +156,16 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 "수동 물주기가 작동합니다.\n\n"
                 "메뉴로 돌아가시려면 \"/start\"를 입력해주세요."
                             )
-            ######################### 물 공급 함수 #######################################################################
+            activate_water_pump()  # 물주기 함수 호출
 
         elif query.data == "water_tank":  # 물탱크 잔여량 확인
-            ############################ 물탱크 수위 확인                ##################################################
-            # 통합하고 지우기
+            water_tank = get_current_tank_level_percent()
+
             response_msg = "현재 물탱크 잔여량입니다."
-            #response_msg = (
-            #    f"현재 물탱크 잔여량은 {}입니다.\n\n"
-            #    "메뉴로 돌아가시려면 \"/start\"를 입력해주세요."
-            #    )
+            response_msg = (
+               f"현재 물탱크 잔여량은 {water_tank}입니다.\n\n"
+               "메뉴로 돌아가시려면 \"/start\"를 입력해주세요."
+               )
 
         keyboard = [
             [
@@ -201,7 +202,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif query.data.startswith("light_"):
         # 물주기 버튼 옵션
         if query.data == "light_25":  # 25% 밝기
-            '''if turn_on_led_with_brightness(25):  # 함수 호출 성공 여부 확인
+            if turn_on_led_with_brightness(25):  # 함수 호출 성공 여부 확인
                 response_msg = (
                     "조명 밝기를 25%로 설정합니다.\n"
                     "자동 모드로 돌아가려면 자동 모드 전환을 선택해주세요.\n\n"
@@ -248,7 +249,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     "메뉴로 돌아가시려면 \"/start\"를 입력해주세요."
                 )
             else:
-                response_msg = "모드 전환에 실패했습니다. 다시 시도해주세요."'''
+                response_msg = "모드 전환에 실패했습니다. 다시 시도해주세요."
 
         keyboard = [
             [
@@ -304,13 +305,13 @@ async def main():
     await application.initialize()
     await application.start()
     await application.updater.start_polling()
-    print("텔레그램 봇 실행 중...")
+    print("user_interface.py: 텔레그램 봇 실행 중...")
 
     try:
         while True:
             await asyncio.sleep(1)  # 대기 상태 유지
     except KeyboardInterrupt:
-        print("텔레그램 봇 종료 중...")
+        print("user_interface.py: 텔레그램 봇 종료 중...")
         await application.stop()
 
 
