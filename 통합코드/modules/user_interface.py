@@ -79,8 +79,8 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # 식물 유형 추출 (예: "1", "2", "3", "4")
         plant_type = query.data.split("_")[1]
 
-        # 파일명: {chat_id}.txt
-        file_path = f"{chat_id}.txt"
+        # 파일명: ../threshold/threshold.txt
+        file_path = "../threshold/threshold.txt"
 
         # 식물 유형에 따른 다르게 내용 작성
         # "토양수분 조도 온도 습도" 순으로 작성
