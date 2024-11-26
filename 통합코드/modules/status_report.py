@@ -1,6 +1,6 @@
 # 실시간 상태 보고
 import telegram
-import telegram_bot as tb
+import modules.telegram_bot as tb
 
 
 # 자동 물주기 시 알람

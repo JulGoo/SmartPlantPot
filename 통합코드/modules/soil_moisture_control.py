@@ -1,4 +1,5 @@
 import time
+from datetime import datetime
 import RPi.GPIO as GPIO
 from influxdb import InfluxDBClient
 from modules.water_tank_monitor import log_water_tank_level, get_tank_level_percent
@@ -27,13 +28,14 @@ def get_moisture_threshold():
 
 # 토양 습도 퍼센트 변환 함수
 def get_soil_moisture_percent(soil_moisture):
-    return int((soil_moisture / 1023) * 100)  # 최대 값 1023/실제 최대 값과 비교 필요
+    return int((soil_moisture / 700) * 100)  # 최대 값 1023/실제 최대 값과 비교 필요
 
 # 토양 습도 값 기록 함수
 def log_soil_moisture(soil_moisture):
     data = [
         {
             "measurement": "Soil_moisture",
+            "time": datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'),
             "fields": {
                 "soil_moisture": soil_moisture
             }
@@ -63,7 +65,7 @@ def monitor_and_control_soil_moisture(queue):
         if not queue.empty():        
             # 큐에서 토양 습도 데이터 받기
             data_type, value = queue.get()
-            queue.clear()  # 큐 비우기
+            queue.queue.clear()  # 큐 비우기
             print(f"soil_moisture_control.py: Get Queue Value: data_type={data_type}, value={value}")  # 디버깅용 출력
 
             if data_type == 'soil_moisture_value':
@@ -83,6 +85,5 @@ def monitor_and_control_soil_moisture(queue):
                     activate_water_pump()
                     print("soil_moisture_control.py: 토양 습도 임계값보다 낮음, 모터 작동")
                     
-
-        time.sleep(0.1)  # 대기(테스트)
-        #time.sleep(600)  # 대기(10분)
+        #time.sleep(5)  # 대기(테스트)
+        time.sleep(600)  # 대기(10분)

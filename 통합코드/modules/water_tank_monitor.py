@@ -1,10 +1,11 @@
 import time
+from datetime import datetime
 from influxdb import InfluxDBClient
 from modules.status_report import msg_water_tank
 import asyncio
 
 # 물탱크 높이 설정
-TANK_HEIGHT_CM = 22  # 물탱크 높이 (cm)
+TANK_HEIGHT_CM = 23  # 물탱크 높이 (cm)
 
 # 물탱크 퍼센트
 tank_leverl_percent = 0  # 물탱크 수위 퍼센트
@@ -30,6 +31,7 @@ def log_water_tank_level(level_percent):
     data = [
         {
             "measurement": "Water_tank_level",
+            "time": datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'),
             "fields": {
                 "level_percent": level_percent
             }
@@ -50,7 +52,7 @@ def monitor_and_log_water_tank_level(queue):
     while True:
         if not queue.empty():
             data_type, value = queue.get()
-            queue.clear()  # 큐 비우기
+            queue.queue.clear()  # 큐 비우기
             print(f"water_tank_monitorl.py: Get Queue Value: data_type={data_type}, value={value}")  # 디버깅용 출력
 
             if data_type == 'water_tank_value':
@@ -67,5 +69,5 @@ def monitor_and_log_water_tank_level(queue):
                 # 물탱크 수위 기록
                 log_water_tank_level(level_percent)
 
-        time.sleep(1)  # 대기(테스트)
-        #time.sleep(3600)  # 대기(1시간)
+        #time.sleep(5)  # 대기(테스트)
+        time.sleep(3600)  # 대기(1시간)

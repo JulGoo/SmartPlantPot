@@ -127,7 +127,7 @@ def monitor_and_control_light(queue):
         while True:
             if not queue.empty(): 
                 data_type, value = queue.get()
-                queue.clear()  # 큐 비우기
+                queue.queue.clear()  # 큐 비우기
                 print(f"light_control_system.py: Get Queue Value: data_type={data_type}, value={value}")  # 디버깅용 출력
 
                 if data_type == 'lux_value':
@@ -157,6 +157,7 @@ def monitor_and_control_light(queue):
                     if not manual_control:
                         # 1시간마다 평균 조도 확인 및 LED 제어
                         if current_time >= last_average_check + timedelta(hours=1):
+                            print()
                             avg_light = get_hourly_average()
                             if avg_light is not None:
                                 print(f"\n=== 최근 1시간 평균 조도 ===")
@@ -186,7 +187,8 @@ def monitor_and_control_light(queue):
                             control_leds(0)
                             led_control_end_time = None
 
-            time.sleep(1)
+            #time.sleep(5)  # 대기(테스트)
+            time.sleep(600)  # 대기(10분)
                         
     except Exception as e:
         print(f"light_control_system.py: main 작동 오류: {e}")

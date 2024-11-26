@@ -1,5 +1,7 @@
 import pandas as pd
 from influxdb import InfluxDBClient
+import matplotlib
+matplotlib.use('Agg')  # Agg 백엔드를 사용하여 GUI 창을 띄우지 않음
 import matplotlib.pyplot as plt
 import io
 import os

@@ -24,8 +24,9 @@ def log_data_to_influxdb(measurement, value):
     data = [
         {
             "measurement": measurement,
+            "time": datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'),
             "fields": {
-                "value": value
+                data_type: value
             }
         }
     ]
@@ -45,7 +46,7 @@ def monitor_and_log_temperature_humidity(queue):
         if not queue.empty():
             # 큐에서 데이터 읽기
             data_type, value = queue.get()
-            queue.clear()  # 큐 비우기
+            queue.queue.clear()  # 큐 비우기
             print(f"get_humidity_temp.py: Get Queue Value: data_type={data_type}, value={value}")  # 디버깅용 출력
 
             if data_type == 'temp_humidity_value':
@@ -53,7 +54,7 @@ def monitor_and_log_temperature_humidity(queue):
 
                 # 온도 처리
                 print(f"get_humidity_temp.py: 온도 데이터 InfluxDB저장. {temperature_value}°C")
-                log_data_to_influxdb("Temperature", temperature_value)
+                log_data_to_influxdb("Temperature", "temperature", temperature_value)
 
                 if temperature_value < temp_threshold - 5:
                     print("get_humidity_temp.py: 습도 낮음")
@@ -64,14 +65,14 @@ def monitor_and_log_temperature_humidity(queue):
 
                 # 습도 처리
                 print(f"get_humidity_temp.py: 습도 데이터 InfluxDB저장.  {humidity_value}%")
-                log_data_to_influxdb("Humidity", humidity_value)
+                log_data_to_influxdb("Humidity", "humidity", humidity_value)
 
                 if humidity_value < humidity_threshold - 10:
                     print("get_humidity_temp.py: 온도 낮음")
-                    # asyncio.run(msg_humid_down())
+                    #asyncio.run(msg_humid_down())
                 elif humidity_value > humidity_threshold + 10:
                     print("get_humidity_temp.py: 온도 높음")
-                    # asyncio.run(msg_humid_up())
+                    #asyncio.run(msg_humid_up())
 
             # 임계값 설정
             get_threshold()
@@ -81,4 +82,5 @@ def monitor_and_log_temperature_humidity(queue):
 
             # 온도 임계값 +- 5°C 범위
 
-        time.sleep(1)  # 대기 
+        #time.sleep(5)  # 대기(테스트)
+        time.sleep(600)  # 대기(10분)
