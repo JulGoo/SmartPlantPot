@@ -29,7 +29,7 @@ def get_current_tank_level_percent():
 def log_water_tank_level(level_percent):
     data = [
         {
-            "measurement": "water_tank_level",
+            "measurement": "Water_tank_level",
             "fields": {
                 "level_percent": level_percent
             }

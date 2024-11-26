@@ -33,7 +33,7 @@ def get_soil_moisture_percent(soil_moisture):
 def log_soil_moisture(soil_moisture):
     data = [
         {
-            "measurement": "soil_moisture",
+            "measurement": "Soil_moisture",
             "fields": {
                 "soil_moisture": soil_moisture
             }
