@@ -4,7 +4,7 @@ from telegram.ext import Application, MessageHandler, CommandHandler, filters, C
 import modules.telegram_bot as tb
 from modules.soil_moisture_control import activate_water_pump
 from modules.water_tank_monitor import get_current_tank_level_percent
-from modules.light_control_system import turn_on_led_with_brightness, switch_to_auto_mode
+from modules.light_control_system import turn_on_led_with_brightness, switch_to_auto_mode, turn_off_led
 import asyncio
 
 
@@ -203,7 +203,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif query.data.startswith("light_"):
         # 조명 관리
         if query.data == "light_off":  # 조명 끄기
-            if switch_to_auto_mode():
+            if turn_off_led():
                 response_msg = (
                     "조명을 OFF시켰습니다.\n"
                     "자동 모드로 돌아가려면 자동 모드 전환을 선택해주세요.\n\n"
