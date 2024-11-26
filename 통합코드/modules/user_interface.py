@@ -7,6 +7,7 @@ from modules.water_tank_monitor import get_current_tank_level_percent
 from modules.light_control_system import turn_on_led_with_brightness, switch_to_auto_mode
 import asyncio
 
+
 # 처음 접속 시 안내 메세지
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     msg = ("안녕하세요!\n"
@@ -119,7 +120,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await query.message.reply_text(
                 "분석 결과 이미지를 찾을 수 없습니다."
             )
-        
+
         await query.message.reply_text("메뉴로 돌아가시려면 \"/start\"를 입력해주세요.")
 
 
@@ -155,7 +156,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             response_msg = (
                 "수동 물주기가 작동합니다.\n\n"
                 "메뉴로 돌아가시려면 \"/start\"를 입력해주세요."
-                            )
+            )
             activate_water_pump()  # 물주기 함수 호출
 
         elif query.data == "water_tank":  # 물탱크 잔여량 확인
@@ -163,9 +164,9 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
             response_msg = "현재 물탱크 잔여량입니다."
             response_msg = (
-               f"현재 물탱크 잔여량은 {water_tank}입니다.\n\n"
-               "메뉴로 돌아가시려면 \"/start\"를 입력해주세요."
-               )
+                f"현재 물탱크 잔여량은 {water_tank}입니다.\n\n"
+                "메뉴로 돌아가시려면 \"/start\"를 입력해주세요."
+            )
 
         keyboard = [
             [
@@ -199,19 +200,19 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         response_msg = "버튼을 선택해주세요."
 
-    elif query.data == "light_off":  # 조명 끄기
-        if switch_to_auto_mode():
-            response_msg = (
-                "조명을 OFF시켰습니다.\n"
-                "자동 모드로 돌아가려면 자동 모드 전환을 선택해주세요.\n\n"
-                "메뉴로 돌아가시려면 \"/start\"를 입력해주세요."
-            )
-        else:
-            response_msg = "조명 설정에 실패했습니다. 다시 시도해주세요."
-
     elif query.data.startswith("light_"):
-        # 물주기 버튼 옵션
-        if query.data == "light_25":  # 25% 밝기
+        # 조명 관리
+        if query.data == "light_off":  # 조명 끄기
+            if switch_to_auto_mode():
+                response_msg = (
+                    "조명을 OFF시켰습니다.\n"
+                    "자동 모드로 돌아가려면 자동 모드 전환을 선택해주세요.\n\n"
+                    "메뉴로 돌아가시려면 \"/start\"를 입력해주세요."
+                )
+            else:
+                response_msg = "조명 설정에 실패했습니다. 다시 시도해주세요."
+
+        elif query.data == "light_25":  # 25% 밝기
             if turn_on_led_with_brightness(25):  # 함수 호출 성공 여부 확인
                 response_msg = (
                     "조명 밝기를 25%로 설정합니다.\n"
@@ -221,7 +222,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             else:
                 response_msg = "조명 설정에 실패했습니다. 다시 시도해주세요."
 
-        elif query.data == "light_50":  # 50% 밝기 
+        elif query.data == "light_50":  # 50% 밝기
             if turn_on_led_with_brightness(50):
                 response_msg = (
                     "조명 밝기를 50%로 설정합니다.\n"
@@ -299,6 +300,7 @@ async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # 알 수 없는 명령어 처리 핸들러
 async def unknown_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("잘못된 명령어입니다.\n시작을 위해 \"/start\"를 입력해주세요.")
+
 
 # 메인 함수
 async def main():

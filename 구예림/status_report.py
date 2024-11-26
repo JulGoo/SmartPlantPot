@@ -11,14 +11,12 @@ async def msg_water():
     await tb.send_chat(msg, chat_id)
 
 
-
 # 자동 조명 조절 시 알람
 async def msg_light():
     chat_id = tb.load_telegram()[1]
     msg = ("식물이 햇빛 친구를 만나고 싶대요.\n"
            "빛을 공급할게요!")
     await tb.send_chat(msg, chat_id)
-
 
 
 # 물탱크 물 부족 시 알람

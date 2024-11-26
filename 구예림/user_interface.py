@@ -200,19 +200,19 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         response_msg = "버튼을 선택해주세요."
 
-    elif query.data == "light_off":  # 조명 끄기
-        if switch_to_auto_mode():
-            response_msg = (
-                "조명을 OFF시켰습니다.\n"
-                "자동 모드로 돌아가려면 자동 모드 전환을 선택해주세요.\n\n"
-                "메뉴로 돌아가시려면 \"/start\"를 입력해주세요."
-            )
-        else:
-            response_msg = "조명 설정에 실패했습니다. 다시 시도해주세요."
-
     elif query.data.startswith("light_"):
-        # 물주기 버튼 옵션
-        if query.data == "light_25":  # 25% 밝기
+        # 조명 관리
+        if query.data == "light_off":  # 조명 끄기
+            if switch_to_auto_mode():
+                response_msg = (
+                    "조명을 OFF시켰습니다.\n"
+                    "자동 모드로 돌아가려면 자동 모드 전환을 선택해주세요.\n\n"
+                    "메뉴로 돌아가시려면 \"/start\"를 입력해주세요."
+                )
+            else:
+                response_msg = "조명 설정에 실패했습니다. 다시 시도해주세요."
+
+        elif query.data == "light_25":  # 25% 밝기
             if turn_on_led_with_brightness(25):  # 함수 호출 성공 여부 확인
                 response_msg = (
                     "조명 밝기를 25%로 설정합니다.\n"
