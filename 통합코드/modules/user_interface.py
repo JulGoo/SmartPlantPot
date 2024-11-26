@@ -1,11 +1,11 @@
 # 사용자 명령어 인터페이스
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, MessageHandler, CommandHandler, filters, ContextTypes, CallbackQueryHandler
-import telegram_bot as tb
+import modules.telegram_bot as tb
+from modules.soil_moisture_control import activate_water_pump
+from modules.water_tank_monitor import get_current_tank_level_percent
+from modules.light_control_system import turn_on_led_with_brightness, switch_to_auto_mode
 import asyncio
-from soil_moisture_control import activate_water_pump
-from water_tank_monitor import get_current_tank_level_percent
-from light_control_system import turn_on_led_with_brightness, switch_to_auto_mode
 
 # 처음 접속 시 안내 메세지
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -80,7 +80,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         plant_type = query.data.split("_")[1]
 
         # 파일명: ../threshold/threshold.txt
-        file_path = "../threshold/threshold.txt"
+        file_path = "/home/pi/SmartPlantPot/threshold/threshold.txt"
 
         # 식물 유형에 따른 다르게 내용 작성
         # "토양수분 조도 온도 습도" 순으로 작성

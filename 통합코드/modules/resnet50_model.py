@@ -7,7 +7,7 @@ from PIL import Image
 # input : 이미지 경로
 # output : True(정상) , False(비정상)
 def model_predict(img_path):
-    interpreter = tf.lite.Interpreter(model_path="../model/convert_model.tflite")
+    interpreter = tf.lite.Interpreter(model_path="/home/pi/SmartPlantPot/model/convert_model.tflite")
     interpreter.allocate_tensors()
 
     # 입/출력 텐서 가져오기

@@ -1,8 +1,9 @@
 import time
 import RPi.GPIO as GPIO
 from influxdb import InfluxDBClient
-from water_tank_monitor import log_water_tank_level, get_tank_level_percent
-from status_report import msg_water
+from modules.water_tank_monitor import log_water_tank_level, get_tank_level_percent
+from modules.status_report import msg_water
+import asyncio
 
 # GPIO 설정
 MOTER_PIN = 14  # 수중 모터 핀(우측위에서 3번째)
@@ -16,7 +17,7 @@ client = InfluxDBClient(host='localhost', port=8086, username='root', password='
 def get_moisture_threshold():
     moisture_threshold = 30  # 기본값
     try:
-        with open("../threshold/threshold.txt", "r") as file:
+        with open("/home/pi/SmartPlantPot/threshold/threshold.txt", "r") as file:
             lines = file.readlines()
             threshold = lines[0].strip()    # 첫번째 줄만 읽기
             moisture_threshold = int(threshold)
@@ -33,7 +34,6 @@ def log_soil_moisture(soil_moisture):
     data = [
         {
             "measurement": "soil_moisture",
-            "time": datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ'),
             "fields": {
                 "soil_moisture": soil_moisture
             }
@@ -60,9 +60,12 @@ def activate_water_pump():
 # 토양 습도 제어
 def monitor_and_control_soil_moisture(queue):
     while True:
-        if not queue.empty():            
+        if not queue.empty():        
             # 큐에서 토양 습도 데이터 받기
             data_type, value = queue.get()
+            queue.clear()  # 큐 비우기
+            print(f"soil_moisture_control.py: Get Queue Value: data_type={data_type}, value={value}")  # 디버깅용 출력
+
             if data_type == 'soil_moisture_value':
                 soil_moisture = value
 
@@ -73,12 +76,13 @@ def monitor_and_control_soil_moisture(queue):
 
                 # 토양 습도 기록
                 log_soil_moisture(soil_moisture_percent)
+                #asyncio.run(msg_water())
 
                 # 임계값 비교 후 물 공급
                 if soil_moisture_percent < get_moisture_threshold():
                     activate_water_pump()
                     print("soil_moisture_control.py: 토양 습도 임계값보다 낮음, 모터 작동")
-                    msg_water() # 텔레그램 물주기 알람
+                    
 
-        time.sleep(1)  # 대기(테스트)
+        time.sleep(0.1)  # 대기(테스트)
         #time.sleep(600)  # 대기(10분)

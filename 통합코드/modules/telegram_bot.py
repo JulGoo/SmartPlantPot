@@ -6,15 +6,15 @@ import telegram
 
 import os
 from dotenv import load_dotenv
-from visualize_data import fetch_data_from_influxdb, visualize_and_save_image
-from resnet50_model import model_predict
-from timelapse import create_video_from_photos
+from modules.visualize_data import fetch_data_from_influxdb, visualize_and_save_image
+from modules.resnet50_model import model_predict
+from modules.timelapse import create_video_from_photos
 
 
 # 텔레그램 봇 토큰값과 채팅 아이디 가져오기
 def load_telegram():
     try:
-        load_dotenv("../telegram.env")
+        load_dotenv("/home/pi/SmartPlantPot/telegram.env")
         token = str(os.getenv("token"))
         chat_id = str(os.getenv("chatID"))
 
@@ -40,7 +40,7 @@ async def send_image(chat_id):
 
     try:
         # 최근 식물 이미지 전송
-        image_dir = "../plant_images"
+        image_dir = "/home/pi/SmartPlantPot/plant_images"
         image_files = glob.glob(os.path.join(image_dir, "*.jpg"))
 
         if not image_files:
@@ -48,8 +48,9 @@ async def send_image(chat_id):
             return False
         
         latest_file = max(image_files, key=os.path.getctime)
+        file_name = os.path.basename(latest_file)  # 파일명 추출
 
-        await bot.send_photo(chat_id, photo=open(latest_file, 'rb'), captuion="🌱 식물의 최근 모습")
+        await bot.send_photo(chat_id, photo=open(latest_file, 'rb'), caption=f"🌱 식물의 {file_name}날의 모습")
 
 
         # 시각화 이미지 전송
@@ -70,7 +71,7 @@ async def send_image(chat_id):
 
         # 식물 상태 전송
         result = model_predict(latest_file)
-        status = "🤗 식물이 건강해요!!" if result else "😥 식물이 아픈 거 같아요.."
+        status = "🤗 식물이 건강해요!" if result else "😢 식물이 아픈 것 같아요.. 식물 상태를 확인해 주세요.."
 
         await bot.sendMessage(chat_id, text=status)
         await asyncio.sleep(2)

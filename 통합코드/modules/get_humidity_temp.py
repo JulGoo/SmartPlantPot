@@ -1,7 +1,8 @@
 import time
 from datetime import datetime
 from influxdb import InfluxDBClient
-from status_report import msg_humid_down, msg_humid_up, msg_temp_down, msg_temp_up
+from modules.status_report import msg_humid_down, msg_humid_up, msg_temp_down, msg_temp_up
+import asyncio
 
 # 온습도 임계값
 temp_threshold = 20      # 온도 임계 기본값
@@ -10,7 +11,7 @@ humidity_threshold = 50  # 습도 임계 기본값
 # 온습도 임계값 설정 함수
 def get_threshold():
     try:
-        with open("../threshold/threshold.txt", "r") as file:
+        with open("/home/pi/SmartPlantPot/threshold/threshold.txt", "r") as file:
             lines = file.readlines()
             global temp_threshold, humidity_threshold
             temp_threshold = int(lines[2].strip())        # 세 번째 줄
@@ -44,35 +45,40 @@ def monitor_and_log_temperature_humidity(queue):
         if not queue.empty():
             # 큐에서 데이터 읽기
             data_type, value = queue.get()
+            queue.clear()  # 큐 비우기
+            print(f"get_humidity_temp.py: Get Queue Value: data_type={data_type}, value={value}")  # 디버깅용 출력
 
-            if data_type == 'humidity_value':
-                humidity_value = value
-                print(f"get_humidity_temp.py: 습도 데이터 InfluxDB저장. {humidity_value}%")
-                log_data_to_influxdb("Humidity", humidity_value)
+            if data_type == 'temp_humidity_value':
+                temperature_value, humidity_value = value  # 튜플 언패킹
 
-            elif data_type == 'temperature_value':
-                temperature_value = value
+                # 온도 처리
                 print(f"get_humidity_temp.py: 온도 데이터 InfluxDB저장. {temperature_value}°C")
                 log_data_to_influxdb("Temperature", temperature_value)
-            
+
+                if temperature_value < temp_threshold - 5:
+                    print("get_humidity_temp.py: 습도 낮음")
+                    # asyncio.run(msg_temp_down())
+                elif temperature_value > temp_threshold + 5:
+                    print("get_humidity_temp.py: 습도 높음")
+                    # asyncio.run(msg_temp_up())
+
+                # 습도 처리
+                print(f"get_humidity_temp.py: 습도 데이터 InfluxDB저장.  {humidity_value}%")
+                log_data_to_influxdb("Humidity", humidity_value)
+
+                if humidity_value < humidity_threshold - 10:
+                    print("get_humidity_temp.py: 온도 낮음")
+                    # asyncio.run(msg_humid_down())
+                elif humidity_value > humidity_threshold + 10:
+                    print("get_humidity_temp.py: 온도 높음")
+                    # asyncio.run(msg_humid_up())
+
             # 임계값 설정
             get_threshold()
 
             # 온도, 습도 임계값 비교
             # 습도 임계값  +- 10% 범위
-            if humidity_value < humidity_threshold - 10:
-                print("get_humidity_temp.py: 습도 낮음!")
-                msg_humid_down()
-            elif humidity_value > humidity_threshold + 10:
-                print("get_humidity_temp.py: 습도 높음!")
-                msg_humid_up()
 
             # 온도 임계값 +- 5°C 범위
-            if temperature_value < temp_threshold - 5:
-                print("get_humidity_temp.py: 온도 낮음!")
-                msg_temp_down()
-            elif temperature_value > temp_threshold + 5:
-                print("get_humidity_temp.py: 온도 높음!")
-                msg_temp_up()
 
         time.sleep(1)  # 대기 

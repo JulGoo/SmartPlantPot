@@ -4,7 +4,7 @@ import glob
 
 # video_lenth 동영상 길이(초)
 def create_video_from_photos(video_lenth:int = 10):
-    photo_directory = '../plant_images'
+    photo_directory = '/home/pi/SmartPlantPot/plant_images'
 
     # 이미지 파일 가져오기 (확장자: jpg)
     photos = glob.glob(os.path.join(photo_directory, '*.jpg'))
@@ -23,7 +23,7 @@ def create_video_from_photos(video_lenth:int = 10):
     height, width, layers = first_frame.shape
 
     # 비디오 파일 저장 경로 지정
-    video_path = '../timelapse/timelapse.mp4'
+    video_path = '/home/pi/SmartPlantPot/timelapse/timelapse.mp4'
 
     # 기존 파일이 존재하면 삭제
     if os.path.exists(video_path):
@@ -50,5 +50,5 @@ def create_video_from_photos(video_lenth:int = 10):
         video_writer.write(frame_resized)
 
     video_writer.release()
-    print(f"timelapse.py: 비디오 생성 완료 '/timelapse/{video_path}'")
+    print(f"timelapse.py: 비디오 생성 완료. '{video_path}'")
     return video_path  # 비디오 파일 경로 반환

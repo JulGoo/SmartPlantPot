@@ -2,7 +2,8 @@ from datetime import datetime, timedelta
 from influxdb import InfluxDBClient
 import time
 from pi5neo import Pi5Neo
-from status_report import msg_light
+from modules.status_report import msg_light
+import asyncio
 
 # LED 설정
 neo = Pi5Neo('/dev/spidev0.0', 10, 800)
@@ -58,12 +59,12 @@ def switch_to_auto_mode():
     except Exception as e:
         print("light_control_system.py: LED 자동 모드 전환 실패")
         return False
-
+        
 # 조도 임계값 설정 함수
 def get_light_threshold():
     light_threshold = 20000    # 기본값
     try:
-        with open("../threshold/threshold.txt", "r") as file:
+        with open("/home/pi/SmartPlantPot/threshold/threshold.txt", "r") as file:
             lines = file.readlines()
             threshold = lines[1].strip()    # 두번째 줄만 읽기
             light_threshold = int(threshold)
@@ -125,9 +126,10 @@ def monitor_and_control_light(queue):
     try:
         while True:
             if not queue.empty(): 
-                # 큐에서 조도 데이터 받기
                 data_type, value = queue.get()
-                
+                queue.clear()  # 큐 비우기
+                print(f"light_control_system.py: Get Queue Value: data_type={data_type}, value={value}")  # 디버깅용 출력
+
                 if data_type == 'lux_value':
                     current_time = datetime.now()
                     utc_time = datetime.utcnow()
@@ -148,7 +150,9 @@ def monitor_and_control_light(queue):
                     except Exception as e:
                         print("light_control_system.py: InfluxDB 에러", e)
                     
-		    
+                    ###################### 전역변수 확인 ######################
+                    print(manual_control)
+
                     # 수동 모드가 아닐 때만 자동 제어 실행
                     if not manual_control:
                         # 1시간마다 평균 조도 확인 및 LED 제어
@@ -166,7 +170,7 @@ def monitor_and_control_light(queue):
                                         print(f"light_control_system.py: 조도 부족 감지 - LED 밝기 설정: {brightness}")
                                         control_leds(brightness)
                                         led_control_end_time = current_time + timedelta(hours=1)
-                                        msg_light() # 텔레그램 조도 부족 알람
+                                        #asyncio.run(msg_light()) # 텔레그램 조도 부족 알람
                                     else:
                                         print("light_control_system.py: 충분한 조도 - LED 꺼짐")
                                         control_leds(0)
@@ -182,7 +186,7 @@ def monitor_and_control_light(queue):
                             control_leds(0)
                             led_control_end_time = None
 
-            time.sleep(0.1)
+            time.sleep(1)
                         
     except Exception as e:
         print(f"light_control_system.py: main 작동 오류: {e}")
