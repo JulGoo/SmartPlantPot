@@ -28,7 +28,7 @@ def get_moisture_threshold():
 
 # 토양 습도 퍼센트 변환 함수
 def get_soil_moisture_percent(soil_moisture):
-    return int((soil_moisture / 700) * 100)  # 최대 값 1023/실제 최대 값과 비교 필요
+    return int((soil_moisture / 1023) * 100)  # 최대 값 1023/실제 최대 값과 비교 필요
 
 # 토양 습도 값 기록 함수
 def log_soil_moisture(soil_moisture):
@@ -48,7 +48,7 @@ def log_soil_moisture(soil_moisture):
     except Exception as e:
         print("soil_moisture_control.py: InfluxDB 에러", e)
     finally:
-        if client is not None:
+        if client:
             client.close()
 
 # 물 공급 함수

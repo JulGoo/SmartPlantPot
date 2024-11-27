@@ -50,7 +50,7 @@ async def send_image(chat_id):
         latest_file = max(image_files, key=os.path.getctime)
         file_name = os.path.basename(latest_file)  # 파일명 추출
 
-        await bot.send_photo(chat_id, photo=open(latest_file, 'rb'), caption=f"🌱 식물의 {file_name}날의 모습")
+        await bot.send_photo(chat_id, photo=open(latest_file, 'rb'), caption=f"🌱 식물의 최근 모습")
 
 
         # 시각화 이미지 전송
@@ -71,7 +71,7 @@ async def send_image(chat_id):
 
         # 식물 상태 전송
         result = model_predict(latest_file)
-        status = "🤗 식물이 건강해요!" if result else "😢 식물이 아픈 것 같아요.. 식물 상태를 확인해 주세요.."
+        status = "🤗 식물이 건강해요!" if result else "😢 식물이 아픈 것 같아요..\n 식물 상태를 확인해 주세요.."
 
         await bot.sendMessage(chat_id, text=status)
         await asyncio.sleep(2)

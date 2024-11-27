@@ -82,7 +82,11 @@ def run_asyncio_in_thread():
 
 if __name__ == "__main__":
     try:
-        print("**Smart Plant Pot Program Start**")
+        print("\n")
+        print("="*50)
+        print("\t**Smart Plant Pot Program Start**")
+        print("="*50)
+        print("\n")
         start_threads()
     except KeyboardInterrupt:
         print("main.py: Program interrupted.")

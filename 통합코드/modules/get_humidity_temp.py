@@ -57,10 +57,10 @@ def monitor_and_log_temperature_humidity(queue):
                 log_data_to_influxdb("Temperature", "temperature", temperature_value)
 
                 if temperature_value < temp_threshold - 5:
-                    print("get_humidity_temp.py: 습도 낮음")
+                    print("get_humidity_temp.py: 온도 낮음")
                     # asyncio.run(msg_temp_down())
                 elif temperature_value > temp_threshold + 5:
-                    print("get_humidity_temp.py: 습도 높음")
+                    print("get_humidity_temp.py: 온도 높음")
                     # asyncio.run(msg_temp_up())
 
                 # 습도 처리
@@ -68,10 +68,10 @@ def monitor_and_log_temperature_humidity(queue):
                 log_data_to_influxdb("Humidity", "humidity", humidity_value)
 
                 if humidity_value < humidity_threshold - 10:
-                    print("get_humidity_temp.py: 온도 낮음")
+                    print("get_humidity_temp.py: 습도 낮음")
                     #asyncio.run(msg_humid_down())
                 elif humidity_value > humidity_threshold + 10:
-                    print("get_humidity_temp.py: 온도 높음")
+                    print("get_humidity_temp.py: 습도 높음")
                     #asyncio.run(msg_humid_up())
 
             # 임계값 설정

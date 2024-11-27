@@ -30,15 +30,22 @@ def fetch_data_from_influxdb(period: str):
         "lux": f"SELECT lux AS value, time FROM Light_Exposure {time_filter} ORDER BY time",
         "temperature": f"SELECT temperature As value, time FROM Temperature {time_filter} ORDER BY time",
         "humidity": f"SELECT humidity As value, time FROM Humidity {time_filter} ORDER BY time",
-        "soil_moisture": f"SELECT soil_moisture AS value, time FROM Soil_Moisture {time_filter} ORDER BY time"
+        "soil_moisture": f"SELECT soil_moisture AS value, time FROM Soil_moisture {time_filter} ORDER BY time"
     }
 
+    print(queries.items())
     dataframes = {}
     for key, query in queries.items():
         try:
             result = client.query(query)
             points = list(result.get_points())
-            dataframes[key] = pd.DataFrame(points)
+            df = pd.DataFrame(points)
+
+            # 시간 변환 (UTC -> KST)
+            if not df.empty:
+                df['time'] = pd.to_datetime(df['time']) + pd.Timedelta(hours=9)
+            dataframes[key] = df
+
         except Exception as e:
             print(f"Error fetching {key} data: {e}")
 
