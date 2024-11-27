@@ -19,14 +19,14 @@ def get_threshold():
     except FileNotFoundError:
         print("get_humidity_temp.py: 임계값 파일을 찾을 수 없습니다. 기본값 사용(20°C, 50%)")
 
-def log_data_to_influxdb(measurement, value):
+def log_data_to_influxdb(measurement, field_name, value):
     """온습도 데이터를 InfluxDB에 기록"""
     data = [
         {
             "measurement": measurement,
             "time": datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'),
             "fields": {
-                data_type: value
+                field_name: value
             }
         }
     ]
