@@ -30,11 +30,11 @@ float t = dht.readTemperature();  // 온도 값 도출
 ### 온습도 데이터 InfluxDB 저장
 - 습도
   - measurement : Humidity
-  - fields : Humjidity
+  - fields : humjidity
   
 - 온도
   - measurement : Temperature
-  - fields : Temperature
+  - fields : temperature
 
 ## 데이터 시각화
 
