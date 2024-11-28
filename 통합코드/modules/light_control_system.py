@@ -171,7 +171,7 @@ def monitor_and_control_light(queue):
                                         print(f"light_control_system.py: 조도 부족 감지 - LED 밝기 설정: {brightness}")
                                         control_leds(brightness)
                                         led_control_end_time = current_time + timedelta(hours=1)
-                                        #asyncio.run(msg_light()) # 텔레그램 조도 부족 알람
+                                        asyncio.run(msg_light()) # 텔레그램 조도 부족 알람
                                     else:
                                         print("light_control_system.py: 충분한 조도 - LED 꺼짐")
                                         control_leds(0)

@@ -78,7 +78,7 @@ def monitor_and_control_soil_moisture(queue):
 
                 # 토양 습도 기록
                 log_soil_moisture(soil_moisture_percent)
-                #asyncio.run(msg_water())
+                asyncio.run(msg_water())
 
                 # 임계값 비교 후 물 공급
                 if soil_moisture_percent < get_moisture_threshold():
