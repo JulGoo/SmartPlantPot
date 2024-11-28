@@ -162,7 +162,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         elif query.data == "water_tank":  # 물탱크 잔여량 확인
             water_tank = get_current_tank_level_percent()
 
-            response_msg = "현재 물탱크 잔여량입니다."
             response_msg = (
                 f"현재 물탱크 잔여량은 {water_tank}입니다.\n\n"
                 "메뉴로 돌아가시려면 \"/start\"를 입력해주세요."

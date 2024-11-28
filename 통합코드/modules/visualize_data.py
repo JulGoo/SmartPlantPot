@@ -86,7 +86,7 @@ def visualize_and_save_image(dataframes, period):
     if "soil_moisture" in dataframes and not dataframes["soil_moisture"].empty:
         ax[3].plot(pd.to_datetime(dataframes["soil_moisture"]["time"]), dataframes["soil_moisture"]["value"], label="Soil Moisture", color="green")
         ax[3].set_title("Soil Moisture")
-        ax[3].set_ylabel("Moisture Level")
+        ax[3].set_ylabel("%")
         ax[3].legend()
 
     # 공통 설정
