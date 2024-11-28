@@ -69,3 +69,6 @@ def capture_photos_from_webcam():
         finally:
             cap.release()
             cv2.destroyAllWindows()
+
+    else:
+        print("captuer.py: 야간 시간대 - 웹캠 작동 제한")
