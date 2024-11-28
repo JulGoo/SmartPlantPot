@@ -2,18 +2,20 @@
 import telegram_bot as tb
 import datetime
 
-time_water = 0
-time_water_tank = 0
-time_light = 0
-time_temp_up = 0
-time_temp_down = 0
-time_humid_up = 0
-time_humid_down = 0
+time_water = None
+time_water_tank = None
+time_light = None
+time_temp_up = None
+time_temp_down = None
+time_humid_up = None
+time_humid_down = None
 
 
 # 메세지 보낸 시간 체크
 def time_check(get_time):
     current_time = datetime.datetime.now()
+    if get_time is None:  # 초기값 처리
+        return datetime.timedelta.max
     time_diff = current_time - get_time
     return time_diff
 
