@@ -69,10 +69,10 @@ def monitor_and_log_temperature_humidity(queue):
 
                 if humidity_value < humidity_threshold - 10:
                     print("get_humidity_temp.py: 습도 낮음")
-                    #asyncio.run(msg_humid_down())
+                    asyncio.run(msg_humid_down())
                 elif humidity_value > humidity_threshold + 10:
                     print("get_humidity_temp.py: 습도 높음")
-                    #asyncio.run(msg_humid_up())
+                    asyncio.run(msg_humid_up())
 
             # 임계값 설정
             get_threshold()

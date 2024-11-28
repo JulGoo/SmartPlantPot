@@ -64,7 +64,7 @@ def monitor_and_log_water_tank_level(queue):
 
                 if(level_percent <= 10):
                     print('water_tank_monitor.py: 물탱크 수위가 10% 이하')
-                    #asyncio.run(msg_water_tank())    # 텔레그램 물탱크 물 부족 알람
+                    asyncio.run(msg_water_tank())    # 텔레그램 물탱크 물 부족 알람
 
                 # 물탱크 수위 기록
                 log_water_tank_level(level_percent)

@@ -78,12 +78,12 @@ def monitor_and_control_soil_moisture(queue):
 
                 # 토양 습도 기록
                 log_soil_moisture(soil_moisture_percent)
-                #asyncio.run(msg_water())
 
                 # 임계값 비교 후 물 공급
                 if soil_moisture_percent < get_moisture_threshold():
                     activate_water_pump()
                     print("soil_moisture_control.py: 토양 습도 임계값보다 낮음, 모터 작동")
+                    asyncio.run(msg_water())
                     
         #time.sleep(5)  # 대기(테스트)
         time.sleep(600)  # 대기(10분)
