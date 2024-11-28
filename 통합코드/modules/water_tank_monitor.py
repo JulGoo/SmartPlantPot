@@ -8,7 +8,7 @@ import asyncio
 TANK_HEIGHT_CM = 23  # 물탱크 높이 (cm)
 
 # 물탱크 퍼센트
-tank_leverl_percent = 0  # 물탱크 수위 퍼센트
+tank_level_percent = 0  # 물탱크 수위 퍼센트
 
 # 물탱크 센서 값
 water_tank_value = 0
@@ -24,7 +24,7 @@ def get_tank_level_percent():
 
 # 물탱크 수위 퍼센트 반환 함수
 def get_current_tank_level_percent():
-    return tank_leverl_percent
+    return get_tank_level_percent()
 
 # 물탱크 수위 기록 함수
 def log_water_tank_level(level_percent):
