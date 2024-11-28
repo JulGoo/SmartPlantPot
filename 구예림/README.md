@@ -1,5 +1,4 @@
-# 텔레그램 봇 인터페이스
-
+# 텔레그램 봇
 ## 텔레그램에서 봇 생성(BotFather 사용)
 이름: **SmartPlantPot44_bot**
 
@@ -27,19 +26,74 @@ https://api.telegram.org/bot[Token]/getUpdates
 pip install python-dotenv
 ```
 
+## def
+### load_telegram()
+.env에서 토큰값 / 채팅아이디 로드
+
+### send_chat(msg, chat_id)
+load_telegram()에서 가져온 chat_id로 msg 전송
+
+### send_image(chat_id)
+식물 상태 분석에서 식물의 사진과 시각화한 이미지 전송
+
+### send_video(chat_id)
+타임랩스 조회에서 영상 전송
+
 # 사용자 명령어 인터페이스
+## 인터페이스
+### InlineKeyboardButton
+사용자 인터페이스의 선택지를 버튼으로 생성
 
-## 핸들러 함수
-### 다양한 명령어 및 메세지 처리
-
-* **start()** <br>
+## def
+### start()
 사용자가 /start를 입력 시 실행 (초기 안내 메세지)
 
-* **handle_message()** <br>
+### button_handler()
 사용자가 텍스트 메세지를 입력 시 실행
 
-* **unknown_command()** <br>
+1. 도움말
+2. 식물 설정
+3. 식물 상태 분석 -> 시각화 결과, 식물 사진, 양호/불량
+4. 타임랩스 조회 -> 영상
+5. 물주기 설정
+	1. 수동 물주기 
+    2. 물탱크 잔여량 조회
+6. 조명 설정
+	1. 조명 Off 
+	2. 조명 25% On 
+    3. 조명 50% On 
+	4. 조명 75% On 
+    5. 조명 100% On 
+	6. 자동 조명 관리로 전환 
+
+### message_handler()
+사용자의 임의의 메시지에 응답 (메시지 처리 핸들러)
+
+### unknown_command()
 사용자가 알 수 없는 메세지를 입력 시 실행 (오류 처리)
+
+# 실시간 상태 보고
+## def
+### msg_water()
+자동 물주기 시 알람
+
+### msg_light()
+자동 조명 조절 시 알람
+
+### msg_water_tank()
+물탱크 물 부족 시 알람
+
+### msg_temp_up()
+설정된 온도 임계값을 높게 벗어날 시 알람
+
+### msg_temp_down()
+설정된 온도 임계값을 낮게 벗어날 시 알람
+
+### msg_humid_up()
+설정된 습도 임계값을 높게 벗어날 시 알람
+
+### msg_humid_down()
+설정된 습도 임계값을 낮게 벗어날 시 알람
 
 
 
