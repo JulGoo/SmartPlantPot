@@ -86,13 +86,13 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # 식물 유형에 따른 다르게 내용 작성
         # "토양수분 조도 온도 습도" 순으로 작성
         if plant_type == "1":  # 관엽식물
-            content = "50\n15000\n21\n50"
+            content = "50\n800\n21\n50"
         elif plant_type == "2":  # 허브/채소류
-            content = "60\n37000\n20\n60"
+            content = "60\n3700\n20\n60"
         elif plant_type == "3":  # 다육식물/선인장
-            content = "20\n50000\n27\n20"
+            content = "20\n4500\n27\n20"
         elif plant_type == "4":  # 화초류
-            content = "50\n22000\n20\n55"
+            content = "50\n2000\n20\n55"
 
         # 파일 생성 및 데이터 쓰기
         with open(file_path, "w") as file:
@@ -162,6 +162,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         elif query.data == "water_tank":  # 물탱크 잔여량 확인
             water_tank = get_current_tank_level_percent()
 
+            response_msg = "현재 물탱크 잔여량입니다."
             response_msg = (
                 f"현재 물탱크 잔여량은 {water_tank}입니다.\n\n"
                 "메뉴로 돌아가시려면 \"/start\"를 입력해주세요."
