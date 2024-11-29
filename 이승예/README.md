@@ -74,15 +74,16 @@ sudo reboot
   //전압으로 변환
   float voltage = sensorValue * (5.0 / 1023.0);
   //lux 값 계산
-  int lux = (5.0 - voltage) * 2000;
+  int lux = static_cast<int>((5.0 - voltage) * 50);
 ```
 
 ## 조도값 기록 / LED 제어 (light_control_system)
 - def
    - monitor_and_control_light(queue): 조도 모니터링 및 LED 제어
-   - get_hourly_average(): 최근 1시간 평균 조도 계산
-   - calculate_led_brightness(current_lux): LED 밝기 계산
-   - control_leds(strip, brightness): LED 밝기 제어
+   - calculate_led_brightness(current_lux): 현재 조도를 기반으로 LED 밝기 계산
+   - control_leds(brightness) : LED 밝기 제어
+   - get_light_threshold(): 조도 임계값 설정 관리
+   - is_daytime(): 주/야간 시간대 확인
 
 - InfluxDB
    - measurement: Light_Exposure
