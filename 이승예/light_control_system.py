@@ -151,6 +151,10 @@ def monitor_and_control_light(queue):
                         print("light_control_system.py: InfluxDB 에러", e)
 
                     print(manual_control)
+                    
+                    # 수동 모드일 때만 알림 전송 
+                    if manual_control and value < get_light_threshold():
+                        asyncio.run(msg_light())
 
                     # 수동 모드가 아닐 때만 자동 제어 실행
                     if not manual_control:
@@ -161,8 +165,6 @@ def monitor_and_control_light(queue):
                                 print(f"light_control_system.py: 조도 부족 감지 - 현재 조도: {value}lux")
                                 print(f"light_control_system.py: LED 밝기 설정: {brightness}")
                                 control_leds(brightness)
-
-                                asyncio.run(msg_light())  # 텔레그램 조도 부족 알람
                             else:
                                 print("light_control_system.py: 충분한 조도 - LED 꺼짐")
                                 control_leds(0)
