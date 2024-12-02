@@ -11,7 +11,7 @@ neo = Pi5Neo('/dev/spidev0.0', 10, 800)
 # 수동 제어 변수
 manual_control = False
 
-# 조도 설정
+# 주간 시간대 설정
 DAYTIME_START = 6  # 오전 6시
 DAYTIME_END = 18  # 오후 6시
 
