@@ -67,14 +67,14 @@ def switch_to_auto_mode():
 
 # 조도 임계값 설정 함수
 def get_light_threshold():
-    light_threshold = 10000  # 기본값
+    light_threshold = 600  # 기본값
     try:
         with open("/home/pi/SmartPlantPot/threshold/threshold.txt", "r") as file:
             lines = file.readlines()
             threshold = lines[1].strip()  # 두번째 줄만 읽기
             light_threshold = int(threshold)
     except FileNotFoundError:
-        print("light_control_system.py: 임계값 파일을 찾을 수 없습니다. 기본값 사용(10000)")
+        print("light_control_system.py: 임계값 파일을 찾을 수 없습니다. 기본값 사용(600)")
     return light_threshold
 
 
