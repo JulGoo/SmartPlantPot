@@ -94,7 +94,6 @@ def calculate_led_brightness(current_lux):
 
     if current_lux >= light_threshold:
         return 0
-    #return 255         임계값보다 부족할 시에 바로 255로 킨다.
 
     # 부족한 조도량 계산 (lux 단위)
     lux_deficit = light_threshold - current_lux
