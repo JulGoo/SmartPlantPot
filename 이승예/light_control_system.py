@@ -11,7 +11,7 @@ neo = Pi5Neo('/dev/spidev0.0', 10, 800)
 # 수동 제어 변수
 manual_control = False
 
-# 조도 설정
+# 주간 시간대 설정
 DAYTIME_START = 6  # 오전 6시
 DAYTIME_END = 18  # 오후 6시
 
@@ -94,14 +94,13 @@ def calculate_led_brightness(current_lux):
 
     if current_lux >= light_threshold:
         return 0
-    #return 255         임계값보다 부족할 시에 바로 255로 킨다.
-
-    # 부족한 조도량 계산 (lux 단위)
-    lux_deficit = light_threshold - current_lux
 
     # LED 밝기값 당 발생하는 lux 값 (실험을 통해 측정 필요)
     # 예: LED 밝기 1(1,1,1) 증가 당 0.5 lux 증가한다고 가정
     LUX_PER_BRIGHTNESS = 0.5
+
+    # 부족한 조도량 계산 (lux 단위)
+    lux_deficit = light_threshold - current_lux
 
     # 필요한 LED 밝기 계산
     required_brightness = int(lux_deficit / LUX_PER_BRIGHTNESS)
