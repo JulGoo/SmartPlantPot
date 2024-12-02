@@ -82,7 +82,7 @@ load_telegram()에서 가져온 chat_id로 msg 전송
 자동 물주기 시 알람
 
 ### msg_light()
-자동 조명 조절 시 알람
+수동 모드일 때 조도값이 부족한 경우 알람
 
 ### msg_water_tank()
 물탱크 물 부족 시 알람

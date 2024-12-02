@@ -50,13 +50,13 @@ async def msg_water_tank():
     time_water_tank = datetime.datetime.now()  # 메시지 보낼 때의 시간을 설정
 
 
-# 자동 조명 조절 시 알람
+# 수동 모드일 때 조도값이 부족한 경우 알람
 async def msg_light():
     global time_light
 
     chat_id = tb.load_telegram()[1]
     msg = ("식물이 햇빛 친구를 만나고 싶대요.\n"
-           "빛을 공급할게요!")
+           "빛을 공급해주세요!")
 
     if time_check(time_light) >= datetime.timedelta(hours=1):
         await tb.send_chat(msg, chat_id)
