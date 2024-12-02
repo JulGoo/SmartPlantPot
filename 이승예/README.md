@@ -77,15 +77,83 @@ sudo reboot
   int lux = static_cast<int>((5.0 - voltage) * 50);
 ```
 
-## 조도값 기록 / LED 제어 (light_control_system)
-- def
-   - monitor_and_control_light(queue): 조도 모니터링 및 LED 제어
-   - calculate_led_brightness(current_lux): 현재 조도를 기반으로 LED 밝기 계산
-   - control_leds(brightness) : LED 밝기 제어
-   - get_light_threshold(): 조도 임계값 설정 관리
-   - is_daytime(): 주/야간 시간대 확인
+## 주요 기능
 
-- InfluxDB
-   - measurement: Light_Exposure
-   - fields: lux
+- 자동/수동 LED 조명 제어
+- 실시간 조도 모니터링
+- 조도 데이터 InfluxDB 저장
+- 주간/야간 시간대별 동작 제어
+- 조도 부족 시 알림 기능
 
+## 시스템 구조
+
+### 1. 초기화 및 설정
+```python
+# LED 설정
+neo = Pi5Neo('/dev/spidev0.0', 10, 800)
+
+# InfluxDB 연결 설정
+client = InfluxDBClient(host='localhost', port=8086, username='root', password='root', database='spp')
+
+# 밝기 프리셋 정의 (0-255 범위)
+BRIGHTNESS_PRESETS = {
+    25: 64,   # 25% = 64 (255 * 0.25)
+    50: 128,  # 50% = 128 (255 * 0.50)
+    75: 191,  # 75% = 191 (255 * 0.75)
+    100: 255  # 100% = 255 (255 * 1.00)
+}
+
+# 주간시간 설정
+DAYTIME_START = 6  # 오전 6시
+DAYTIME_END = 18   # 오후 6시
+```
+
+### 2. LED 제어 시스템
+
+#### 수동 제어 모드
+- 사전 정의된 밝기 프리셋으로 LED 제어 가능 (25%, 50%, 75%, 100%)
+- LED ON/OFF 기능
+- 조도 부족 시 알림 발송
+
+```python
+def turn_on_led_with_brightness(brightness_percent):
+    global manual_control
+    try:
+        manual_control = True
+        brightness = BRIGHTNESS_PRESETS[brightness_percent]
+        neo.clear_strip()
+        neo.fill_strip(brightness, brightness, brightness)
+        neo.update_strip()
+        return True
+    except Exception as e:
+        print(f"light_control_system.py: 수동 LED ON 실패: ", e)
+        return False
+```
+
+#### 자동 제어 모드
+- 주간 시간대(06:00-18:00)에만 작동
+- 현재 조도가 설정된 임계값보다 낮을 경우 자동으로 LED 밝기 조절
+- 10분 간격으로 조도 체크 및 제어
+
+```python
+def calculate_led_brightness(current_lux):
+    light_threshold = get_light_threshold()
+
+    if current_lux >= light_threshold:
+        return 0
+
+    # 부족한 조도량 계산 (lux 단위)
+    lux_deficit = light_threshold - current_lux
+    
+    # LED 밝기값 당 발생하는 lux 값 (실험 측정치)
+    LUX_PER_BRIGHTNESS = 0.5
+
+    required_brightness = int(lux_deficit / LUX_PER_BRIGHTNESS)
+    return min(required_brightness, 255)
+```
+
+
+### 3. 데이터 관리
+- 조도 데이터 실시간 InfluxDB 저장
+- 측정 시간 및 조도값(lux) 기록
+- 조도 임계값 설정 파일 관리
