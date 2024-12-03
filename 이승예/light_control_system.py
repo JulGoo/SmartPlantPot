@@ -96,8 +96,8 @@ def calculate_led_brightness(current_lux):
         return 0
 
     # LED 밝기값 당 발생하는 lux 값
-    # LED 밝기 1(1,1,1) 증가 당 0.94 lux 증가
-    LUX_PER_BRIGHTNESS = 0.94
+    # LED 밝기 1(1,1,1) 증가 당 0.094 lux 증가
+    LUX_PER_BRIGHTNESS = 0.094
 
     # 부족한 조도량 계산 (lux 단위)
     lux_deficit = light_threshold - current_lux
